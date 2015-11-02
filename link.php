@@ -14,8 +14,8 @@ if(isset($_SESSION['maintenance_link']) && trim($_SESSION['maintenance_link']) !
     $maintenance_url = $_SESSION['maintenance_link'];
     $newton_url      = $_SESSION['newton_link'];
 }
-if(trim($_SESSION['maintenance_link']) == '' && $maintenance_url == '') $messageUrl = '<div class="alert alert-error">Empty Maintenance URL !!! Please input the link.</div>';
-if(trim($_SESSION['newton_link']) == '' && $newton_url == '') $messageUrl .= '<div class="alert alert-error">Empty Newton URL !!! Please input the link.</div>';
+if(isset($_SESSION['maintenance_link'])&&trim($_SESSION['maintenance_link']) == '' && $maintenance_url == '') $messageUrl = '<div class="alert alert-error">Empty Maintenance URL !!! Please input the link.</div>';
+if(isset($_SESSION['newton_link'])&&trim($_SESSION['newton_link']) == '' && $newton_url == '') $messageUrl .= '<div class="alert alert-error">Empty Newton URL !!! Please input the link.</div>';
 
 // Maitenance Data
 

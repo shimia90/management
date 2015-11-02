@@ -1,17 +1,25 @@
 <?php require_once 'process.php'; 
     if(isset($_GET['date_search']) && trim($_GET['date_search']) != '') $_SESSION['date_search'] = $_GET['date_search'];
+    echo '<pre>';
+    print_r($memberArray);
+    echo '</pre>';
+    
+    echo '<pre>';
+    print_r($data);
+    echo '</pre>';
 ?>
 <!DOCTYPE html>
 <html>
     
     <head>
         <meta charset="UTF-8">
-        <title>Records</title>
+        <title>Personal Management</title>
         <!-- Bootstrap -->
         <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
         <link href="bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" media="screen">
         <link href="assets/styles.css" rel="stylesheet" media="screen">
         <link href="assets/DT_bootstrap.css" rel="stylesheet" media="screen">
+        <link href="css/jquery-ui.min.css" rel="stylesheet" media="screen">
         <!--[if lte IE 8]><script language="javascript" type="text/javascript" src="vendors/flot/excanvas.min.js"></script><![endif]-->
         <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
         <!--[if lt IE 9]>
@@ -57,6 +65,7 @@
                                         <div id="example_length">
                                             <form action="link.php" method="get" id="user_form" class="form-inline">
                                                 <label>
+                                                    Name: 
                                                     <select id="user_select" size="1" name="user_name" aria-controls="example">
                                                         <option value="">Select Member</option>
                                                         <?php foreach($memberArray as $key => $value) :
@@ -67,21 +76,7 @@
                                                     </select>
                                                 </label>
                                                 <label>
-                                                    <select size="1" name="date_search" aria-controls="example">
-                                                        <option value="">Select Date</option>
-                                                        <?php 
-                                                            // for each day in the month
-                                                            for($i = 1; $i <=  date('t'); $i++)
-                                                            {
-                                                                // add the date to the dates array
-                                                                $dates[] = str_pad($i, 2, '0', STR_PAD_LEFT). "/" . date('m') . "/" . date('Y')   ;
-                                                            }
-                                                            foreach($dates as $key => $value) :
-                                                                if($value == $today) { $selected = 'selected="selected"'; } else { $selected = ''; }
-                                                        ?>
-                                                            <option value="<?php echo $value; ?>" <?php echo $selected;?>><?php echo $value; ?></option>
-                                                        <?php endforeach; ?>
-                                                    </select>
+                                                    Date: <input type="text" id="datepicker" name="date_search" value="<?php if(isset($_GET['date_search'])) { echo $_GET['date_search']; } else { echo $today; } ?>" />
                                                 </label>
                                                 <input type="hidden" name="type" value="single" />
                                                 <input type="hidden" name="page_submit" value="record" />
@@ -93,7 +88,7 @@
   									<table cellpadding="0" cellspacing="0" border="0" class="table table-striped" id="example">
 										<thead>
 											<tr>
-												<th>NO</th>
+												<th>Team</th>
 												<th>Name</th>
 												<th>Project Type</th>
 												<th>Project No</th>
@@ -117,6 +112,9 @@
                                                     $sum = 0;
                                                     foreach ($data[$i] as $key => $value) {
                                                         $c = 1;
+                                                        foreach ($memberArray as $m => $n) {
+                                                            
+                                                        }
                                                         foreach($value as $k => $v) {
         
 									               $class = ($i%2 == 0) ? 'even' : 'odd';
@@ -216,7 +214,8 @@
 
         <script src="assets/scripts.js"></script>
         <!-- <script src="assets/DT_bootstrap.js"></script> -->
-        
+        <script src="js/jquery-ui.min.js"></script>
+        <script src="js/custom.js"></script>
     </body>
 
 </html>
