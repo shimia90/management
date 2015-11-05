@@ -1,30 +1,35 @@
 <?php
-ob_start();
-session_start();
 require_once 'function.php';
+require_once 'class/Database.class.php';
+$params		= array(
+    'server' 	=> 'localhost',
+    'username'	=> 'root',
+    'password'	=> '',
+    'database'	=> 'management',
+    'table'		=> 'source_link',
+);
+$database       =   new Database($params);
+$currentMonth   =   date('m');
+$querySource    =   "SELECT * FROM source_link WHERE `link_month` = '".$currentMonth."'";
+$arraySource    =   $database->listRecord($database->query($querySource));   
+
 $today          = date("d/m/Y");
-if(isset($_SESSION['date_search']) && trim($_SESSION['date_search']) != '') {
-    $today = $_SESSION['date_search'];
+for($i = 0; $i < count($arraySource); $i++) {
+    switch ($arraySource[$i]['project_link']) {
+        case 1:
+            $maintenance_url    =   $arraySource[$i]['link'];
+        case 4:
+            $newton_url         =   $arraySource[$i]['link'];
+    } 
 }
 $messageUrl     = '';
-// Link to get
-$maintenance_url="https://docs.google.com/spreadsheets/d/1VRE9AtN-csRxYwtuhWBUdt7UQlGoKMs3Bvdcne0BfWg/pub?gid=785801277&single=true&output=csv";
-$newton_url="https://docs.google.com/spreadsheets/d/18OztKU73I3zQHWWlYwYgalciFCWD_IowwsHd-YabkBE/pub?gid=785801277&single=true&output=csv";
-if(isset($_SESSION['maintenance_link']) && trim($_SESSION['maintenance_link']) != '' || isset($_SESSION['newton_link']) && trim($_SESSION['newton_link']) != '') {
-    $maintenance_url = $_SESSION['maintenance_link'];
-    $newton_url      = $_SESSION['newton_link'];
-}
-if(isset($_SESSION['maintenance_link'])&&trim($_SESSION['maintenance_link']) == '' && $maintenance_url == '') $messageUrl = '<div class="alert alert-error">Empty Maintenance URL !!! Please input the link.</div>';
-if(isset($_SESSION['newton_link'])&&trim($_SESSION['newton_link']) == '' && $newton_url == '') $messageUrl .= '<div class="alert alert-error">Empty Newton URL !!! Please input the link.</div>';
 
 // Maitenance Data
 
-$maintenance_data   =       getData($maintenance_url);
-if(empty($maintenance_data)) { $messageUrl .= '<div class="alert alert-error">Wrong Maintenance URL !!! Please input the correct link.</div>'; } 
+$maintenance_data   =       getData($maintenance_url); 
 
 // Newton Data
 $newton_data        =       getData($newton_url);
-if(empty($maintenance_data)) { $messageUrl .= '<div class="alert alert-error">Wrong Newton URL !!! Please input the correct link.</div>'; }
 
 // Get Member
 $member_data        =       getData('./csv/member.csv');
@@ -38,6 +43,6 @@ foreach($member_data as $key => $value) {
     $memberArray[$key][]  =       trim($value[0]);
     $memberArray[$key][]  =       trim($value[3]);
 }
-if(isset($_GET['page_submit']) && $_GET['page_submit'] == 'record') {
+/* if(isset($_GET['page_submit']) && $_GET['page_submit'] == 'record') {
     header("location: record.php?user_name={$_GET['user_name']}&&date_search={$_GET['date_search']}&&type={$_GET['type']}");
-}
+} */

@@ -33,3 +33,10 @@ function removeArrayItem($arrayRemove = array(), $arraySource = array()) {
     }
     return $arraySource;
 }
+
+function convertMonth($str) {
+    $month = '';
+    $arrayDate = explode('/', $str);
+    $month = $arrayDate[1];
+    return $month;
+}

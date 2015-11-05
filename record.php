@@ -1,12 +1,5 @@
 <?php require_once 'process.php'; 
     if(isset($_GET['date_search']) && trim($_GET['date_search']) != '') $_SESSION['date_search'] = $_GET['date_search'];
-    echo '<pre>';
-    print_r($memberArray);
-    echo '</pre>';
-    
-    echo '<pre>';
-    print_r($data);
-    echo '</pre>';
 ?>
 <!DOCTYPE html>
 <html>
@@ -88,13 +81,14 @@
   									<table cellpadding="0" cellspacing="0" border="0" class="table table-striped" id="example">
 										<thead>
 											<tr>
-												<th>Team</th>
+												<th>No</th>
 												<th>Name</th>
 												<th>Project Type</th>
 												<th>Project No</th>
 												<th>Project Name</th>
 												<th>Order Date</th>
 												<th>Delivery Date</th>
+												<th>Delivery Before</th>
 												<th>Standard Duration</th>
 												<th>Real Duration</th>
 												<th>Start </th>
@@ -112,27 +106,25 @@
                                                     $sum = 0;
                                                     foreach ($data[$i] as $key => $value) {
                                                         $c = 1;
-                                                        foreach ($memberArray as $m => $n) {
-                                                            
-                                                        }
                                                         foreach($value as $k => $v) {
-        
+                                                            
 									               $class = ($i%2 == 0) ? 'even' : 'odd';
 									       ?>
 											<tr class="gradeX <?php echo projectTypeBg($v['PROJECT_TYPE']);?>">
 												<td class="text-center"><?php if($c == 1) echo $j; ?></td>
 												<td class="text-center"><?php if($c == 1) echo $key; ?></td>
 												<td class="text-center"><?php echo $v['PROJECT_TYPE'];?></td>
-												<td class="text-center"><?php echo $v['NO'];?></td>
-												<td class="text-center"><?php echo $v['SITE']; ?></td>
+												<td class="text-center"><?php echo $v['PROJECT_NO'];?></td>
+												<td class="text-center"><?php echo $v['PROJECT_NAME']; ?></td>
 												<td class="text-center"><?php echo $v['ORDER_DATE']; ?></td>
-												<td class="text-center"><?php echo $v['DELIVERY']; ?></td>
+												<td class="text-center"><?php echo $v['DELIVERY_DATE']; ?></td>
+												<td class="text-center"><?php echo @$v['DELIVERY_BEFORE']; ?></td>
 												<td class="text-center"><?php echo $v['STANDARD_DURATION']; ?></td>
 												<td class="text-center"><?php echo $v['REAL_DURATION']; ?></td>
-												<td class="text-center"><?php echo $v['START_WORK']; ?></td>
-												<td class="text-center"><?php echo $v['END_WORK']; ?></td>
+												<td class="text-center"><?php echo $v['START']; ?></td>
+												<td class="text-center"><?php echo $v['END']; ?></td>
 												<td class="text-center"><?php echo round($v['PERFORMANCE'],2); ?></td>
-												<td class="text-center"><?php echo $v['NOTES']; ?></td>
+												<td class="text-center"><?php echo $v['NOTE']; ?></td>
 											</tr>
 											<?php 
 											     $sum += $v['REAL_DURATION'];
@@ -140,7 +132,7 @@
 									                   }
 									        ?>
 									        <tr>
-											     <td colspan="13" class="text-center"><?php echo '<h4 class="text-right">Total: <strong>' . $sum . '</strong></h4>'; ?></td>
+											     <td colspan="14" class="text-center"><?php echo '<h4 class="text-right">Total: <strong>' . $sum . '</strong></h4>'; ?></td>
 											</tr>
 									        <?php 
 									               }
@@ -148,7 +140,6 @@
 									          } 
 									          endif;
 									        ?>
-									        
 									        <?php 
                         			           // Show Single People
                         			           if(isset($_GET['user_name']) && $flagUser == true) :
@@ -159,18 +150,19 @@
                         				     ?>
                             							<tr class="gradeX <?php echo projectTypeBg($value['PROJECT_TYPE']);?>">
                         									<td class="text-center"><?php echo $i; ?></td>
-                        									<td class="text-center"><?php echo $value['MAIN_DES']; ?></td>
+                        									<td class="text-center"><?php echo $value['USER']; ?></td>
                         									<td class="text-center"><?php echo $value['PROJECT_TYPE'];?></td>
-                        									<td class="text-center"><?php echo $value['NO'];?></td>
-                        									<td class="text-center"><?php echo $value['SITE']; ?></td>
+                        									<td class="text-center"><?php echo $value['PROJECT_NO'];?></td>
+                        									<td class="text-center"><?php echo $value['PROJECT_NAME']; ?></td>
                         									<td class="text-center"><?php echo $value['ORDER_DATE']; ?></td>
-                        									<td class="text-center"><?php echo $value['DELIVERY']; ?></td>
+                        									<td class="text-center"><?php echo $value['DELIVERY_DATE']; ?></td>
+                        									<td class="text-center"><?php echo @$value['DELIVERY_BEFORE']; ?></td>
                         									<td class="text-center"><?php echo $value['STANDARD_DURATION']; ?></td>
                         									<td class="text-center"><?php echo $value['REAL_DURATION']; ?></td>
-                        									<td class="text-center"><?php echo $value['START_WORK']; ?></td>
-                        									<td class="text-center"><?php echo $value['END_WORK']; ?></td>
+                        									<td class="text-center"><?php echo $value['START']; ?></td>
+                        									<td class="text-center"><?php echo $value['END']; ?></td>
                         									<td class="text-center"><?php echo round($value['PERFORMANCE'],2); ?></td>
-                        									<td class="text-center"><?php echo $value['NOTES']; ?></td>
+                        									<td class="text-center"><?php echo $value['NOTE']; ?></td>
                         								</tr>		               
                                             <?php
                                                    $i++;
@@ -178,13 +170,13 @@
                         				           endforeach;
                         				    ?>
                         				                <tr>
-            											     <td colspan="13" class="text-center"><?php echo '<h4 class="text-right">Total: <strong>' . $sum . '</strong></h4>'; ?></td>
+            											     <td colspan="14" class="text-center"><?php echo '<h4 class="text-right">Total: <strong>' . $sum . '</strong></h4>'; ?></td>
             											</tr>
                         				    <?php
                         			           elseif(isset($_GET['user_name']) && $flagUser == false && trim($_GET['user_name']) != ''):
                         			        ?>
                         			          <tr class="error">
-                        			             <td colspan="13"><?php echo $message; ?></td>
+                        			             <td colspan="14"><?php echo $message; ?></td>
                         			          </tr>
                         			        <?php    
                         			           endif;
@@ -196,8 +188,6 @@
                         </div>
                         <!-- /block -->
                     </div>
-
-                     
                 </div>
             </div>
             <hr>

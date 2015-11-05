@@ -1,22 +1,20 @@
 <?php 
 require_once 'process_group.php';
 if(isset($_GET['date_search']) && trim($_GET['date_search']) != '') $_SESSION['date_search'] = $_GET['date_search'];
-if(isset($_POST['maintenance_link']) || isset($_POST['newton_link'])) {
-    
-    $_SESSION['maintenance_link'] = $_POST['maintenance_link'];
-    $_SESSION['newton_link'] = $_POST['newton_link'];
-} 
+
 ?>
 <!DOCTYPE html>
 <html class="no-js">
     
     <head>
         <title>Users Management System</title>
+        <meta charset="UTF-8">
         <!-- Bootstrap -->
         <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
         <link href="bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" media="screen">
         <link href="vendors/easypiechart/jquery.easy-pie-chart.css" rel="stylesheet" media="screen">
         <link href="assets/styles.css" rel="stylesheet" media="screen">
+        <link href="css/jquery-ui.min.css" rel="stylesheet" media="screen">
         <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
         <!--[if lt IE 9]>
             <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -29,33 +27,19 @@ if(isset($_POST['maintenance_link']) || isset($_POST['newton_link'])) {
             <div class="row-fluid">
                 <div class="span12" id="content">
                     <div class="row-fluid">
-                    	<div class="span6"><?php echo $messageUrl; ?></div>
+                    	<div class="span6"><?php //echo $messageUrl; ?></div>
                     	<div class="span6">
                     	   <div class="alert alert-info">Records of Group on <?php echo $today; ?></div>
                     	</div>
                     </div>
                     <div class="row-fluid">
                         <div class="span6">
-                            <a href="#change_link" class="btn btn-warning" data-toggle="modal" role="button">Change Google Doc Link</a>
+                            <a href="google_source/google_link.php" class="btn btn-warning">Change Google Doc Link</a>
                         </div>
                         <div class="span6">
                             <form action="" method="get" id="user_form" class="form-inline pull-left">
                                 <label>
-                                    <select size="1" name="date_search" aria-controls="example">
-                                        <option value="">Select Date</option>
-                                        <?php 
-                                            // for each day in the month
-                                            for($i = 1; $i <=  date('t'); $i++)
-                                            {
-                                                // add the date to the dates array
-                                                $dates[] = str_pad($i, 2, '0', STR_PAD_LEFT). "/" . date('m') . "/" . date('Y')   ;
-                                            }
-                                            foreach($dates as $key => $value) :
-                                                if($value == $today) { $selected = 'selected="selected"'; } else { $selected = ''; }
-                                        ?>
-                                            <option value="<?php echo $value; ?>" <?php echo $selected;?>><?php echo $value; ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
+                                    Date: <input type="text" id="datepicker" name="date_search" value="<?php if(isset($_GET['date_search'])) { echo $_GET['date_search']; } else { echo $today; } ?>" />
                                 </label>
                                 <input type="hidden" name="type" value="single" />
                                 <button class="btn btn-warning" type="submit">Search</button>
@@ -176,28 +160,16 @@ if(isset($_POST['maintenance_link']) || isset($_POST['newton_link'])) {
         <script src="bootstrap/js/bootstrap.min.js"></script>
         <script src="vendors/easypiechart/jquery.easy-pie-chart.js"></script>
         <script src="assets/scripts.js"></script>
-        
-        <!-- Modal -->
-        <div id="change_link" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3 id="myModalLabel">Google Doc Links</h3>
-          </div>
-          <div class="modal-body">
-            <form action="index.php" method="post" id="google_change_link_form">
-              <fieldset>
-                <label>Maintenance Google Doc Link</label>
-                <input type="text" placeholder="Google Doc Link" value="" name="maintenance_link">
-                <label>Newton Google Doc Link</label>
-                <input type="text" placeholder="Google Doc Link" value="" name="newton_link">
-              </fieldset>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-            <button id="google_btn_change" class="btn btn-primary">Save changes</button>
-          </div>
-        </div>
+        <script src="js/jquery-ui.min.js"></script>
+        <script src="js/custom.js"></script>
+        <script>
+            $(document).ready(function() {
+          	  $('#google_btn_change').on('click', function() {
+          	     $("#google_change_link_form").submit();
+            	 
+          	  });
+          	});
+        </script>
     </body>
 
 </html>
