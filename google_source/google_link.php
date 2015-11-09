@@ -7,9 +7,20 @@
         'database'	=> 'management',
         'table'		=> 'source_link',
     );
-    $database       =   new Database($params);
-    $query          =   'SELECT * FROM source_link';
-    $arraySource    =   $database->listRecord($database->query($query));
+    
+    $paramsProject		= array(
+        'server' 	=> 'localhost',
+        'username'	=> 'root',
+        'password'	=> '',
+        'database'	=> 'management',
+        'table'		=> 'project_type',
+    );
+    $database           =   new Database($params);
+    $databaseProject    =   new Database($paramsProject);
+    $query              =   'SELECT * FROM source_link';
+    $queryProject       =   'SELECT * FROM project_type';
+    $arraySource        =   $database->listRecord($database->query($query));
+    $arrayProject       =   $databaseProject->listRecord($databaseProject->query($queryProject));
 ?>
 <!DOCTYPE html>
 <html>
@@ -30,6 +41,17 @@
     </head>
     
     <body>
+        <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container-fluid">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"> <span class="icon-bar"></span>
+                     <span class="icon-bar"></span>
+                     <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="../index.php">Management Dashboard</a>
+                </div>
+            </div>
+        </div>
         <div class="container-fluid">
             <div class="row-fluid">
                 <div class="span12" id="content">
@@ -37,7 +59,7 @@
                         <!-- block -->
                         <div class="block">
                             <div class="navbar navbar-inner block-header">
-                                <div class="muted pull-left">Bootstrap dataTables with Toolbar</div>
+                                <div class="muted pull-left">Google Doc Links</div>
                             </div>
                             <div class="block-content collapse in">
                                 <div class="span12">
@@ -60,14 +82,13 @@
                                         </thead>
                                         <tbody>
                                         <?php
-                                            $arrayProject = array('Maintenance', 'New coding', 'Domestic', 'Newton', 'Research', 'Other'); 
                                             $d = 1;
                                             
                                             for($i = 0; $i < count($arraySource); $i++) { 
                                                 $class = ($d % 2 == 0) ?  'even' : 'odd';
                                                 foreach($arrayProject as $key => $value) {
-                                                    if($arraySource[$i]['project_link'] == $key + 1) {
-                                                        $arraySource[$i]['project_link'] = $value;
+                                                    if($arraySource[$i]['project_link'] == $value['id']) {
+                                                        $arraySource[$i]['project_link'] = $value['project_type'];
                                                     }
                                                 }
                                         ?>
@@ -77,7 +98,7 @@
                                                     <td class="text-center"><?php echo $arraySource[$i]['link_month']; ?></td>
                                                     <td class="text-center"><?php echo $arraySource[$i]['link_year']; ?></td>
                                                     <td class="text-center"><?php echo $arraySource[$i]['project_link']; ?></td>
-                                                    <td class="text-center"><a class="btn btn-mini btn-primary" href="google_link_insert.php?type=edit&&idLink=<?php echo $arraySource[$i]['id']; ?>">Edit</a> <a class="btn btn-mini btn-danger" href="google_link_delete.php?idLink=<?php echo $arraySource[$i]['id']; ?>" onclick="deleteConfirm()">Delete</a></td>
+                                                    <td class="text-center"><a class="btn btn-mini btn-primary" href="google_link_insert.php?type=edit&&idLink=<?php echo $arraySource[$i]['id']; ?>">Edit</a> <a class="btn btn-mini btn-danger" href="google_link_delete.php?idLink=<?php echo $arraySource[$i]['id']; ?>" onclick="return ConfirmDelete();">Delete</a></td>
                                                 </tr>
                                         <?php
                                                 $d++;
@@ -107,8 +128,13 @@
         <script src="../assets/scripts.js"></script>
         <script src="../assets/DT_bootstrap.js"></script>
         <script>
-        function deleteConfirm() {
-            confirm("Do you want to delete this row ?");
+        function ConfirmDelete()
+        {
+          var x = confirm("Are you sure you want to delete this link?");
+          if (x)
+              return true;
+          else
+            return false;
         }
         </script>
     </body>

@@ -100,4 +100,3 @@ foreach ($newArray as $key => $item)
 // old $data array. This is not strictly necessary, but if you
 // want the indices to be numeric and in order then do this.
 $data = array_values($result);
-

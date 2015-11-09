@@ -18,18 +18,51 @@ for($i = 0; $i < count($arraySource); $i++) {
     switch ($arraySource[$i]['project_link']) {
         case 1:
             $maintenance_url    =   $arraySource[$i]['link'];
+            break;
+        case 2: 
+            $newcoding_url      =   $arraySource[$i]['link'];
+            break;
+        case 3:
+            $domestic_url        =   $arraySource[$i]['link'];
+            break;
         case 4:
             $newton_url         =   $arraySource[$i]['link'];
+            break;
+        case 5:
+            $research_url       =   $arraySource[$i]['link'];
+            break;
+        case 6:
+            $other_url          =   $arraySource[$i]['link'];
+            break;   
+        case 7:
+            $fc_url             =      $arraySource[$i]['link'];
+            break;
+            
     } 
 }
 $messageUrl     = '';
 
 // Maitenance Data
 
-$maintenance_data   =       getData($maintenance_url); 
+$maintenance_data           =       getData($maintenance_url); 
 
 // Newton Data
-$newton_data        =       getData($newton_url);
+$newton_data                =       getData($newton_url);
+
+// Domestic Data
+$domestic_data              =       getData($domestic_url);
+
+// Domestic Data
+$fc_data                    =       getData($fc_url);
+
+// Others
+$other_data                 =       getData($other_url);
+
+// Research
+$research_data              =       getData($research_url);
+
+// New Coding
+$newcoding_data             =       getData($newcoding_url);
 
 // Get Member
 $member_data        =       getData('./csv/member.csv');
@@ -43,6 +76,3 @@ foreach($member_data as $key => $value) {
     $memberArray[$key][]  =       trim($value[0]);
     $memberArray[$key][]  =       trim($value[3]);
 }
-/* if(isset($_GET['page_submit']) && $_GET['page_submit'] == 'record') {
-    header("location: record.php?user_name={$_GET['user_name']}&&date_search={$_GET['date_search']}&&type={$_GET['type']}");
-} */
