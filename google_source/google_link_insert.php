@@ -136,7 +136,7 @@
 							</div> -->
 							<?php echo $message;?>
   							<div class="control-group">
-  								<label class="control-label">Name<span class="required">*</span></label>
+  								<label class="control-label">Link<span class="required">*</span></label>
   								<div class="controls">
   									<input type="text" name="google_link" data-required="1" class="span6 m-wrap" placeholder="Name" value="<?php if(isset($_POST['form_edit'])){ echo $_POST['google_link']; } else if($_GET['type'] == 'edit') { echo @$arrayEdit[0]['link']; } ?>" />
   								</div>

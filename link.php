@@ -35,9 +35,10 @@ for($i = 0; $i < count($arraySource); $i++) {
             $other_url          =   $arraySource[$i]['link'];
             break;   
         case 7:
-            $fc_url             =      $arraySource[$i]['link'];
+            $fc_url             =   $arraySource[$i]['link'];
             break;
-            
+        case 8:
+            $working_url        =   $arraySource[$i]['link'];  
     } 
 }
 $messageUrl     = '';
@@ -63,6 +64,9 @@ $research_data              =       getData($research_url);
 
 // New Coding
 $newcoding_data             =       getData($newcoding_url);
+
+// Working
+$working_data               =       getData($working_url);
 
 // Get Member
 $member_data        =       getData('./csv/member.csv');

@@ -178,5 +178,36 @@ class Database{
         return false;
 	}
 	
+	public function createSelectSQL($data) {
+	    $newQuery = '';
+	    if(!empty($data)) {
+	        foreach($data as $key => $value) {
+	           if(trim($value) == '') {
+	               $newQuery .= '`'.$key.'` = "" AND ';
+	           } else {
+	               $newQuery .= '`'.$key.'` = "'.$value.'" AND ';
+	           }
+	        }
+	        $newQuery = substr($newQuery, 0, -5);
+	    }
+	    return $newQuery;
+	}
+	
+	public function returnID($data) {
+	    $whereSelect = $this->createSelectSQL($data);
+	    $newQuery = "SELECT `id` FROM `$this->table` WHERE " . $whereSelect;
+	    return $this->listRecord($this->query($newQuery));
+	}
+	
+	public function checkExistRow($data) {
+	    $whereSelect = $this->createSelectSQL($data);
+	    $newQuery = "SELECT * FROM `$this->table` WHERE " . $whereSelect;
+	    if(mysqli_num_rows($this->query($newQuery)) > 0) {
+	        return true;
+	    }
+	    return false;  
+	}
+	
+	
 
 }

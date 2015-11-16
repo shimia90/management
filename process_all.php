@@ -22,7 +22,7 @@ for ($i = 0; $i < count($maintenance_data) - 1; $i ++) {
             $arrayMaintenance['Maintenance'][$i]['PROJECT_NO'] = $maintenance_data[$i][1];
             $arrayMaintenance['Maintenance'][$i]['PROJECT_TYPE'] = 'Maintenance';
             $arrayMaintenance['Maintenance'][$i]['ORDER_DATE'] = $maintenance_data[$i][2];
-            $arrayMaintenance['Maintenance'][$i]['WORK_DATE'] = $maintenance_data[$i][2];
+            $arrayMaintenance['Maintenance'][$i]['WORK_DATE'] = $maintenance_data[$i][13];
             $arrayMaintenance['Maintenance'][$i]['PROJECT_NAME'] = $maintenance_data[$i][4];
             $arrayMaintenance['Maintenance'][$i]['STATUS'] = $maintenance_data[$i][5];
             $arrayMaintenance['Maintenance'][$i]['STANDARD_DURATION'] = $maintenance_data[$i][8];
@@ -32,7 +32,7 @@ for ($i = 0; $i < count($maintenance_data) - 1; $i ++) {
             $arrayMaintenance['Maintenance'][$i]['START'] = $maintenance_data[$i][15];
             $arrayMaintenance['Maintenance'][$i]['END'] = $maintenance_data[$i][16];
             $arrayMaintenance['Maintenance'][$i]['REAL_DURATION'] = $maintenance_data[$i][19];
-            $arrayMaintenance['Maintenance'][$i]['PERFORMANCE'] = ($maintenance_data[$i][19] > 0) ? $maintenance_data[$i][8] / $maintenance_data[$i][19] : 0;
+            $arrayMaintenance['Maintenance'][$i]['PERFORMANCE'] = ($maintenance_data[$i][19] > 0) ? (round($maintenance_data[$i][8] / $maintenance_data[$i][19], 2)) : 0;
             $arrayMaintenance['Maintenance'][$i]['NOTE'] = $maintenance_data[$i][21];
             $arrayMaintenance['Maintenance'][$i]['PAGE_NAME'] = '';
             $arrayMaintenance['Maintenance'][$i]['PAGE_NUMBER'] = '';
@@ -66,7 +66,7 @@ for ($i = 0; $i < count($newton_data) - 1; $i ++) {
             $arrayNewton['Newton'][$i]['START'] = $newton_data[$i][9];
             $arrayNewton['Newton'][$i]['END'] = $newton_data[$i][10];
             $arrayNewton['Newton'][$i]['REAL_DURATION'] = $newton_data[$i][5];
-            $arrayNewton['Newton'][$i]['PERFORMANCE'] = ($newton_data[$i][4] > 0 && $newton_data[$i][5] > 0) ? $newton_data[$i][5] / $newton_data[$i][4] : 0;
+            $arrayNewton['Newton'][$i]['PERFORMANCE'] = ($newton_data[$i][4] > 0 && $newton_data[$i][5] > 0) ? (round($newton_data[$i][5] / $newton_data[$i][4], 2)) : 0;
             $arrayNewton['Newton'][$i]['NOTE'] = $newton_data[$i][12];
             $arrayNewton['Newton'][$i]['PAGE_NAME'] = $newton_data[$i][6];
             $arrayNewton['Newton'][$i]['PAGE_NUMBER'] = '';
@@ -89,7 +89,7 @@ for ($i = 0; $i < count($domestic_data) - 1; $i ++) {
             $domestic_data[$i][4] = str_replace(',', '.', $domestic_data[$i][4]);
             $domestic_data[$i][5] = str_replace(',', '.', $domestic_data[$i][5]);
             $arrayDomestic['Domestic'][$i]['PROJECT_NO'] = '';
-            $arrayDomestic['Domestic'][$i]['PROJECT_TYPE'] = 'Dosmetic';
+            $arrayDomestic['Domestic'][$i]['PROJECT_TYPE'] = 'Domestic';
             $arrayDomestic['Domestic'][$i]['ORDER_DATE'] = '';
             $arrayDomestic['Domestic'][$i]['WORK_DATE'] = $domestic_data[$i][0];
             $arrayDomestic['Domestic'][$i]['PROJECT_NAME'] = $domestic_data[$i][1];
@@ -101,7 +101,7 @@ for ($i = 0; $i < count($domestic_data) - 1; $i ++) {
             $arrayDomestic['Domestic'][$i]['START'] = $domestic_data[$i][9];
             $arrayDomestic['Domestic'][$i]['END'] = $domestic_data[$i][10];
             $arrayDomestic['Domestic'][$i]['REAL_DURATION'] = $domestic_data[$i][5];
-            $arrayDomestic['Domestic'][$i]['PERFORMANCE'] = ($domestic_data[$i][4] > 0 && $domestic_data[$i][5] > 0) ? $domestic_data[$i][5] / $domestic_data[$i][4] : 0;
+            $arrayDomestic['Domestic'][$i]['PERFORMANCE'] = ($domestic_data[$i][4] > 0 && $domestic_data[$i][5] > 0) ? (round($domestic_data[$i][5] / $domestic_data[$i][4], 2)) : 0;
             $arrayDomestic['Domestic'][$i]['NOTE'] = $domestic_data[$i][12];
             $arrayDomestic['Domestic'][$i]['PAGE_NAME'] = '';
             $arrayDomestic['Domestic'][$i]['PAGE_NUMBER'] = $domestic_data[$i][3];
@@ -136,7 +136,7 @@ for ($i = 0; $i < count($fc_data) - 1; $i ++) {
             $arrayFc['FC'][$i]['START'] = $fc_data[$i][10];
             $arrayFc['FC'][$i]['END'] = $fc_data[$i][11];
             $arrayFc['FC'][$i]['REAL_DURATION'] = $fc_data[$i][6];
-            $arrayFc['FC'][$i]['PERFORMANCE'] = ($fc_data[$i][5] > 0 && $fc_data[$i][6] > 0) ? $fc_data[$i][6] / $fc_data[$i][5] : 0;
+            $arrayFc['FC'][$i]['PERFORMANCE'] = ($fc_data[$i][5] > 0 && $fc_data[$i][6] > 0) ? (round($fc_data[$i][6] / $fc_data[$i][5], 2)) : 0;
             $arrayFc['FC'][$i]['NOTE'] = $fc_data[$i][13];
             $arrayFc['FC'][$i]['PAGE_NAME'] = $fc_data[$i][7];
             $arrayFc['FC'][$i]['PAGE_NUMBER'] = $fc_data[$i][4];
@@ -172,7 +172,7 @@ for ($i = 0; $i < count($other_data) - 1; $i ++) {
             $arrayOther['Other'][$i]['REAL_DURATION'] = $other_data[$i][7];
             $arrayOther['Other'][$i]['PERFORMANCE'] = '0';
             $arrayOther['Other'][$i]['NOTE'] = $other_data[$i][8];
-            $arrayOther['Other'][$i]['PAGE_NAME'] = $other_data[$i][3];
+            $arrayOther['Other'][$i]['PAGE_NAME'] = '';
             $arrayOther['Other'][$i]['PAGE_NUMBER'] = '';
             $arrayOther['Other'][$i]['TYPE'] = '';
             $arrayOther['Other'][$i]['WORK_CONTENT'] = $other_data[$i][2];
@@ -207,8 +207,8 @@ for ($i = 0; $i < count($research_data) - 1; $i ++) {
             $arrayResearch['Research'][$i]['START'] = $research_data[$i][6];
             $arrayResearch['Research'][$i]['END'] = $research_data[$i][7];
             $arrayResearch['Research'][$i]['REAL_DURATION'] = $research_data[$i][5];
-            $arrayResearch['Research'][$i]['PERFORMANCE'] = ($research_data[$i][4] > 0 && $research_data[$i][5] > 0) ? $research_data[$i][5] / $research_data[$i][4] : 0;
-            $arrayResearch['Research'][$i]['NOTE'] = $research_data[$i][9]. '<br />' . $research_data[$i][10] . '<br />' . $research_data[$i][11];
+            $arrayResearch['Research'][$i]['PERFORMANCE'] = ($research_data[$i][4] > 0 && $research_data[$i][5] > 0) ? (round($research_data[$i][5] / $research_data[$i][4], 2)) : 0;
+            $arrayResearch['Research'][$i]['NOTE'] = $research_data[$i][9]. '-' . $research_data[$i][10] . '-' . $research_data[$i][11];
             $arrayResearch['Research'][$i]['PAGE_NAME'] = '';
             $arrayResearch['Research'][$i]['PAGE_NUMBER'] = '';
             $arrayResearch['Research'][$i]['TYPE'] = '';
@@ -217,36 +217,43 @@ for ($i = 0; $i < count($research_data) - 1; $i ++) {
     }
 }
 
+
 // New Coding
 array_shift($newcoding_data);
 
 for ($i = 0; $i < count($newcoding_data) - 1; $i ++) {
     if (trim($newcoding_data[$i][9]) != '' && trim($newcoding_data[$i][11]) != '' && trim($newcoding_data[$i][12]) != '') {
-        if ($newcoding_data[$i][9] == '') {
+        /* if ($newcoding_data[$i][9] == '') {
             unset($newcoding_data[$i][9]);
             continue;
-        } else {
+        } else { */
             $newcoding_data[$i][5] = str_replace(',', '.', $newcoding_data[$i][5]);
             $newcoding_data[$i][6] = str_replace(',', '.', $newcoding_data[$i][6]);
-            $arrayNewCoding['New Coding'][$i]['PROJECT_NO'] = $newcoding_data[$i][1];
-            $arrayNewCoding['New Coding'][$i]['PROJECT_TYPE'] = 'New Coding';
-            $arrayNewCoding['New Coding'][$i]['ORDER_DATE'] = '';
-            $arrayNewCoding['New Coding'][$i]['WORK_DATE'] = $newcoding_data[$i][0];
-            $arrayNewCoding['New Coding'][$i]['PROJECT_NAME'] = $newcoding_data[$i][2];
-            $arrayNewCoding['New Coding'][$i]['STATUS'] = $newcoding_data[$i][10];
-            $arrayNewCoding['New Coding'][$i]['STANDARD_DURATION'] = $newcoding_data[$i][5];
-            $arrayNewCoding['New Coding'][$i]['DELIVERY_DATE'] = '';
-            $arrayNewCoding['New Coding'][$i]['DELIVERY_BEFORE'] = '';
-            $arrayNewCoding['New Coding'][$i]['USER'] = $newcoding_data[$i][9];
-            $arrayNewCoding['New Coding'][$i]['START'] = $newcoding_data[$i][11];
-            $arrayNewCoding['New Coding'][$i]['END'] = $newcoding_data[$i][12];
-            $arrayNewCoding['New Coding'][$i]['REAL_DURATION'] = $newcoding_data[$i][6];
-            $arrayNewCoding['New Coding'][$i]['PERFORMANCE'] = ($newcoding_data[$i][5] > 0 && $newcoding_data[$i][6] > 0) ? $newcoding_data[$i][6] / $newcoding_data[$i][5] : 0;
-            $arrayNewCoding['New Coding'][$i]['NOTE'] = $newcoding_data[$i][14];
-            $arrayNewCoding['New Coding'][$i]['PAGE_NAME'] = $newcoding_data[$i][8];
-            $arrayNewCoding['New Coding'][$i]['PAGE_NUMBER'] = $newcoding_data[$i][4];
-            $arrayNewCoding['New Coding'][$i]['TYPE'] = $newcoding_data[$i][3];
-            $arrayNewCoding['New Coding'][$i]['WORK_CONTENT'] = $newcoding_data[$i][7];
-        }
+            $arrayNewCoding['NewCoding'][$i]['PROJECT_NO'] = $newcoding_data[$i][1];
+            $arrayNewCoding['NewCoding'][$i]['PROJECT_TYPE'] = 'New Coding';
+            $arrayNewCoding['NewCoding'][$i]['ORDER_DATE'] = '';
+            $arrayNewCoding['NewCoding'][$i]['WORK_DATE'] = $newcoding_data[$i][0];
+            $arrayNewCoding['NewCoding'][$i]['PROJECT_NAME'] = $newcoding_data[$i][2];
+            $arrayNewCoding['NewCoding'][$i]['STATUS'] = $newcoding_data[$i][10];
+            $arrayNewCoding['NewCoding'][$i]['STANDARD_DURATION'] = $newcoding_data[$i][5];
+            $arrayNewCoding['NewCoding'][$i]['DELIVERY_DATE'] = '';
+            $arrayNewCoding['NewCoding'][$i]['DELIVERY_BEFORE'] = '';
+            $arrayNewCoding['NewCoding'][$i]['USER'] = $newcoding_data[$i][9];
+            $arrayNewCoding['NewCoding'][$i]['START'] = $newcoding_data[$i][11];
+            $arrayNewCoding['NewCoding'][$i]['END'] = $newcoding_data[$i][12];
+            $arrayNewCoding['NewCoding'][$i]['REAL_DURATION'] = $newcoding_data[$i][6];
+            $arrayNewCoding['NewCoding'][$i]['PERFORMANCE'] = ($newcoding_data[$i][5] > 0 && $newcoding_data[$i][6] > 0) ? (round($newcoding_data[$i][6] / $newcoding_data[$i][5], 2)) : 0;
+            $arrayNewCoding['NewCoding'][$i]['NOTE'] = $newcoding_data[$i][14];
+            $arrayNewCoding['NewCoding'][$i]['PAGE_NAME'] = $newcoding_data[$i][8];
+            $arrayNewCoding['NewCoding'][$i]['PAGE_NUMBER'] = $newcoding_data[$i][4];
+            $arrayNewCoding['NewCoding'][$i]['TYPE'] = $newcoding_data[$i][3];
+            $arrayNewCoding['NewCoding'][$i]['WORK_CONTENT'] = $newcoding_data[$i][7];
+        /* } */
     }
+}
+
+foreach($arrayNewCoding as $key => $value) {
+    
+    $value = array_values($value);
+    $arrayNewCoding[$key] = $value; 
 }
