@@ -4,6 +4,7 @@ if(isset($_GET['updateSQL']) && $_GET['updateSQL'] == 'yes') {
     require_once 'import_work.php';
 }
 require_once 'class/Database.class.php';
+$arrayConnect = array('server' 	=> 'localhost','username'	=> 'root',);
 $paramsUser		= array(
     'server' 	=> 'localhost',
     'username'	=> 'root',
@@ -84,42 +85,7 @@ if(isset($_POST['date_show'])) {
         <script src="vendors/modernizr-2.6.2-respond-1.1.0.min.js"></script>
     </head>
     <body>
-        <div class="navbar navbar-fixed-top">
-            <div class="navbar-inner">
-                <div class="container-fluid">
-                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"> <span class="icon-bar"></span>
-                     <span class="icon-bar"></span>
-                     <span class="icon-bar"></span>
-                    </a>
-                    <a class="brand" href="index.php">Admin Dashboard</a>
-                    <div class="nav-collapse collapse">
-                        <ul class="nav">
-                        	<li class="dropdown">
-                                <a href="#" data-toggle="dropdown" class="dropdown-toggle">Daily Duration Management <b class="caret"></b></a>
-                                <ul class="dropdown-menu" id="menu1">
-                                    <li>
-                                        <a href="personal.php">Personal Management</a>
-                                    </li>
-                                    <li>
-                                        <a href="#">Group Management</a>
-                                    </li>
-                                    <li>
-                                        <a href="#">All</a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li>
-                                <a href="#">Project Management</a>  
-                            </li>
-                            <li>
-                                <a href="#">Run Slide Automatic</a>  
-                            </li>
-                        </ul>
-                    </div>
-                    <!--/.nav-collapse -->
-                </div>
-            </div>
-        </div>
+        <?php require_once 'header.php'; ?>
         <div class="container-fluid">
             <div class="row-fluid">
                 
@@ -133,7 +99,8 @@ if(isset($_POST['date_show'])) {
                             </div>
                             <div class="block-content collapse in">
                                 <div class="span12">
-                                    <div class="span6">
+                                    <div id="search-information">
+                                        <div class="span6">
                                         <div id="example_length">
                                             <form action="personal.php" method="post" id="user_form" class="form-inline mb_10">
                                                 <label>
@@ -178,10 +145,11 @@ if(isset($_POST['date_show'])) {
                                             </div>
                                         </form>
                                         </div>'>Show All</button></div>
+                                    </div>
 
-  									<table cellpadding="0" cellspacing="0" border="0" class="table table-striped" id="example">
+  									<table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-fixed" id="example">
 										<thead>
-											<tr>
+											<tr class="success">
 												<th class="text-center">No</th>
 												<?php if(isset($_POST['date_show'])) :?>
 												<th class="text-center">Designer</th>
@@ -203,10 +171,12 @@ if(isset($_POST['date_show'])) {
 										</thead>
 										<tbody>
 										  <?php 
-										      if(!empty($arrayWork)) {
-										          $totalStandard  =       0;
-										          $totalReal      =       0;
-										          $countArrayWork =       count($arrayWork);   
+										  $totalStandard      =       0;
+										  $totalReal          =       0;
+										  $totalPerformance   =       0;
+										  $i                  =       1;
+										      if(!empty($arrayWork)) { 
+										          $countArrayWork =       count($arrayWork);
 										          foreach($arrayWork as $key => $value) :
 										              foreach($arrayUser as $k => $v) :
 										                  if($value['user'] == $v['id']) {
@@ -216,6 +186,7 @@ if(isset($_POST['date_show'])) {
 										                  $tmpUser = $value['user'];
 										                  $totalStandard  += $value['standard_duration'];
 										                  $totalReal      +=      $value['real_duration'];
+										                  $totalPerformance += $value['performance'];
 										  ?>
 								          <tr class="gradeX">
 								            <td class="text-center"><?php echo $key+1; ?></td>
@@ -238,9 +209,32 @@ if(isset($_POST['date_show'])) {
 									      </tr>
 									      
 									      <?php 
+									               $i++;
 									           endforeach;
 										      }
-									       ?>         
+									       ?>
+									       <?php if(!@$_POST['date_show'] && isset($_POST['date_search']) && $_POST['date_search'] != '') : ?>
+									       <tr>
+									           <?php 
+									               $statusClass = '';
+									               if($totalStandard <= 6 || $totalReal <= 6) {
+									                   $statusClass = 'label-important';
+									               } elseif($totalStandard >= 7 && $totalStandard <= 8 || $totalReal >= 7 && $totalReal <= 8) {
+									                   $statusClass = 'label-info';
+									               } elseif($totalStandard > 8 && $totalReal > 8) {
+									                   $statusClass = 'label-success';
+									               }
+									           ?>
+									           <td colspan="7"></td>
+									           <td class="text-center"><b>Total</b></td>
+									           <td class="text-center"><span class="label <?php echo $statusClass; ?>"><?php echo $totalStandard;?></span></td>
+									           <td class="text-center"><span class="label <?php echo $statusClass; ?>"><?php echo $totalReal; ?></span></td>
+									           <td></td>
+									           <td class="text-center"><b>Average</b></td>
+									           <td class="text-center"><span class="label <?php echo $statusClass; ?>"><?php echo ($totalStandard / $totalReal * 100); ?>%</span><td>
+									           <td colspan="2"></td>
+									       </tr>
+									       <?php endif; ?>         
 										</tbody>
 									</table>
                                 </div>
@@ -266,6 +260,7 @@ if(isset($_POST['date_show'])) {
         <!-- <script src="assets/DT_bootstrap.js"></script> -->
         <script src="js/jquery-ui.min.js"></script>
         <script src="js/custom.js"></script>
+        <script src="js/jquery.floatThead.min.js"></script>
         <script type="text/javascript">
         /* $(document).ready(function(){
             $("#btn_show").click(function(){
@@ -288,6 +283,13 @@ if(isset($_POST['date_show'])) {
                 		dateFormat:"dd/mm/yy",
                 	});
                 }
+            });
+
+            var $demo1 = $('table.table-fixed');
+            $demo1.floatThead({
+            	scrollContainer: function($table){
+            		return $table.closest('.wrapper');
+            	}
             });
 
         });

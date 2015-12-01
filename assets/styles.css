@@ -7,9 +7,9 @@ body {
 
 
 @media (min-width: 979px){
-    body {
+    /* body {
             padding-top: 60px;
-    }
+    } */
 }
 
 .text-center, .table th.text-center, .table td.text-center {
@@ -24,6 +24,15 @@ body {
 	
 }
 
+.table tr.success > th {
+	
+  background-color: #dff0d8;
+	
+}
+
+.ui-widget-content {
+  z-index: 99999 !important;
+}
 
 /** Login Page **/
 #login {

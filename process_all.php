@@ -257,3 +257,8 @@ foreach($arrayNewCoding as $key => $value) {
     $value = array_values($value);
     $arrayNewCoding[$key] = $value; 
 }
+
+foreach($arrayMaintenance as $key => $value) {
+    $value = array_values($value);
+    $arrayMaintenance[$key] = $value;
+}

@@ -62,7 +62,7 @@ foreach($arrayMaintenance['Maintenance'] as $key => $value) {
             foreach($arrayIdMaintenance as $key => $value) {
                 $arrayMaitenanceWhere[] = array('id',$value['id'], null);    
             }
-            $databaseWork->update($arrayMaintenance['Maintenance'][$key], $arrayMaitenanceWhere);
+            @$databaseWork->update($arrayMaintenance['Maintenance'][$key], $arrayMaitenanceWhere);
         } else {
             $databaseWork->insert($arrayMaintenance['Maintenance'][$key]);
         }
@@ -91,12 +91,13 @@ foreach($arrayNewton['Newton'] as $key => $value) {
        $arrayNewtonToSelect['project_name']   =   $arrayNewton['Newton'][$key]['project_name'];
        $arrayNewtonToSelect['work_date']   =   $arrayNewton['Newton'][$key]['work_date'];
        $arrayNewtonToSelect['user']   =   $arrayNewton['Newton'][$key]['user'];
+       $arrayNewtonToSelect['type']   =   $arrayNewton['Newton'][$key]['type'];
         if($databaseWork->checkExistRow($arrayNewtonToSelect) == true) {
             $arrayIdNewton = $databaseWork->returnID($arrayNewton['Newton'][$key]);
             foreach($arrayIdNewton as $key => $value) {
                 $arrayNewtonWhere[] = array('id',$value['id'], null);    
             }
-            $databaseWork->update($arrayNewton['Newton'][$key], $arrayNewtonWhere);
+            @$databaseWork->update($arrayNewton['Newton'][$key], $arrayNewtonWhere);
         } else {
             $databaseWork->insert($arrayNewton['Newton'][$key]);
         }
@@ -124,6 +125,7 @@ foreach($arrayDomestic['Domestic'] as $key => $value) {
         $arrayDomesticToSelect['project_type']  =   $arrayDomestic['Domestic'][$key]['project_type'];
         $arrayDomesticToSelect['user']  =   $arrayDomestic['Domestic'][$key]['user'];
         $arrayDomesticToSelect['work_date']  =   $arrayDomestic['Domestic'][$key]['work_date'];
+        $arrayDomesticToSelect['type']  =   $arrayDomestic['Domestic'][$key]['type'];
         if($databaseWork->checkExistRow($arrayDomesticToSelect) == true) {
             $arrayIdDomestic = $databaseWork->returnID($arrayDomestic['Domestic'][$key]);
             foreach($arrayIdDomestic as $key => $value) {
@@ -135,7 +137,6 @@ foreach($arrayDomestic['Domestic'] as $key => $value) {
         }
     }
 }
-
 
 //Import FC Data
 foreach($arrayFc['FC'] as $key => $value) {
@@ -159,17 +160,20 @@ foreach($arrayFc['FC'] as $key => $value) {
         $arrayFcToSelect['project_name']    =   $arrayFc['FC'][$key]['project_name'];
         $arrayFcToSelect['work_date']    =   $arrayFc['FC'][$key]['work_date'];
         $arrayFcToSelect['user']    =   $arrayFc['FC'][$key]['user'];
+        $arrayFcToSelect['type']    =   $arrayFc['FC'][$key]['type'];
+        $arrayFcToSelect['page_name']    =   $arrayFc['FC'][$key]['page_name'];
         if($databaseWork->checkExistRow($arrayFcToSelect) == true) {
             $arrayIdFC = $databaseWork->returnID($arrayFc['FC'][$key]);
             foreach($arrayIdFC as $key => $value) {
                 $arrayFCWhere[] = array('id',$value['id'], null);
             }
-            $databaseWork->update($arrayFc['FC'][$key], $arrayFCWhere);
+            @$databaseWork->update($arrayFc['FC'][$key], $arrayFCWhere);
         } else {
             $databaseWork->insert($arrayFc['FC'][$key]);
         }
     }
 }
+
 
 // Other Data
 foreach($arrayOther['Other'] as $key => $value) {
@@ -238,6 +242,7 @@ foreach($arrayResearch['Research'] as $key => $value) {
     }
 }
 
+
 // New Coding
 foreach($arrayNewCoding['NewCoding'] as $key => $value) {
     if(empty($arrayNewCoding['NewCoding'][$key])) {
@@ -260,6 +265,7 @@ foreach($arrayNewCoding['NewCoding'] as $key => $value) {
         $arrayNewCodingToSelect['project_type']   =   $arrayNewCoding['NewCoding'][$key]['project_type'];
         $arrayNewCodingToSelect['work_date']   =   $arrayNewCoding['NewCoding'][$key]['work_date'];
         $arrayNewCodingToSelect['user']   =   $arrayNewCoding['NewCoding'][$key]['user'];
+        $arrayNewCodingToSelect['work_content']   =   $arrayNewCoding['NewCoding'][$key]['work_content'];
         if($databaseWork->checkExistRow($arrayNewCoding['NewCoding'][$key]) == true) {
             $arrayIdCoding = $databaseWork->returnID($arrayNewCoding['NewCoding'][$key]);
             foreach($arrayIdCoding as $key => $value) {

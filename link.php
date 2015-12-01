@@ -10,35 +10,48 @@ $params		= array(
 );
 $database       =   new Database($params);
 $currentMonth   =   date('m');
-$querySource    =   "SELECT * FROM source_link WHERE `link_month` = '".$currentMonth."'";
+
+/* New Custom */
+for($i = 1; $i <=8; $i ++) {
+    $queryProject = "SELECT * FROM source_link WHERE `project_link` = ".$i." ORDER BY `link_month` DESC LIMIT 1";
+    $arraySource[] = $database->listRecord($database->query($queryProject));
+}
+/* End New Custom */
+
+/* $querySource    =   "SELECT * FROM source_link WHERE `link_month` = '".$currentMonth."'";
 $arraySource    =   $database->listRecord($database->query($querySource));   
+if(empty($arraySource)) {
+    $currentMonth   =   date('m') - 1;
+    $querySource    =   "SELECT * FROM source_link WHERE `link_month` = '".$currentMonth."'";
+    $arraySource    =   $database->listRecord($database->query($querySource));
+} */
 
 $today          = date("d/m/Y");
 for($i = 0; $i < count($arraySource); $i++) {
-    switch ($arraySource[$i]['project_link']) {
+    switch ($arraySource[$i][0]['project_link']) {
         case 1:
-            $maintenance_url    =   $arraySource[$i]['link'];
+            $maintenance_url    =   $arraySource[$i][0]['link'];
             break;
         case 2: 
-            $newcoding_url      =   $arraySource[$i]['link'];
+            $newcoding_url      =   $arraySource[$i][0]['link'];
             break;
         case 3:
-            $domestic_url        =   $arraySource[$i]['link'];
+            $domestic_url        =   $arraySource[$i][0]['link'];
             break;
         case 4:
-            $newton_url         =   $arraySource[$i]['link'];
+            $newton_url         =   $arraySource[$i][0]['link'];
             break;
         case 5:
-            $research_url       =   $arraySource[$i]['link'];
+            $research_url       =   $arraySource[$i][0]['link'];
             break;
         case 6:
-            $other_url          =   $arraySource[$i]['link'];
+            $other_url          =   $arraySource[$i][0]['link'];
             break;   
         case 7:
-            $fc_url             =   $arraySource[$i]['link'];
+            $fc_url             =   $arraySource[$i][0]['link'];
             break;
         case 8:
-            $working_url        =   $arraySource[$i]['link'];  
+            $working_url        =   $arraySource[$i][0]['link'];  
     } 
 }
 $messageUrl     = '';
