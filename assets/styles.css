@@ -30,7 +30,7 @@ body {
 	
 }
 
-.ui-widget-content {
+.ui-widget-content, .date-picker-wrapper {
   z-index: 99999 !important;
 }
 

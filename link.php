@@ -13,7 +13,7 @@ $currentMonth   =   date('m');
 
 /* New Custom */
 for($i = 1; $i <=8; $i ++) {
-    $queryProject = "SELECT * FROM source_link WHERE `project_link` = ".$i." ORDER BY `link_month` DESC LIMIT 1";
+    $queryProject = "SELECT * FROM `source_link` WHERE `project_link` = ".$i." ORDER BY `link_month` DESC LIMIT 1";
     $arraySource[] = $database->listRecord($database->query($queryProject));
 }
 /* End New Custom */
@@ -27,33 +27,49 @@ if(empty($arraySource)) {
 } */
 
 $today          = date("d/m/Y");
+/* echo '<pre>';
+print_r($arraySource);
+echo '</pre>';
+echo count($arraySource);
+die(); */
 for($i = 0; $i < count($arraySource); $i++) {
     switch ($arraySource[$i][0]['project_link']) {
         case 1:
-            $maintenance_url    =   $arraySource[$i][0]['link'];
+            $maintenance_url            =   $arraySource[$i][0]['link'];
             break;
         case 2: 
-            $newcoding_url      =   $arraySource[$i][0]['link'];
+            $newcoding_url              =   $arraySource[$i][0]['link'];
             break;
         case 3:
-            $domestic_url        =   $arraySource[$i][0]['link'];
+            $domestic_url               =   $arraySource[$i][0]['link'];
             break;
         case 4:
-            $newton_url         =   $arraySource[$i][0]['link'];
+            $newton_url                 =   $arraySource[$i][0]['link'];
             break;
         case 5:
-            $research_url       =   $arraySource[$i][0]['link'];
+            $research_url               =   $arraySource[$i][0]['link'];
             break;
         case 6:
-            $other_url          =   $arraySource[$i][0]['link'];
+            $other_url                  =   $arraySource[$i][0]['link'];
             break;   
         case 7:
-            $fc_url             =   $arraySource[$i][0]['link'];
+            $fc_url                     =   $arraySource[$i][0]['link'];
             break;
         case 8:
-            $working_url        =   $arraySource[$i][0]['link'];  
+            $working_url                =   $arraySource[$i][0]['link'];
+            break;
+       /*  case 9:
+            $newton_detail_url          =   $arraySource[$i][0]['link'];
+            break;
+        case 10:
+            $fc_detail_url              =   $arraySource[$i][0]['link'];
+            break;
+        case 11:
+            $newcoding_detail_url       =   $arraySource[$i][0]['link'];
+            break; */
     } 
 }
+
 $messageUrl     = '';
 
 // Maitenance Data
@@ -80,6 +96,15 @@ $newcoding_data             =       getData($newcoding_url);
 
 // Working
 $working_data               =       getData($working_url);
+
+// Newton Detail
+//$newton_detail_data         =       getData($newton_detail_url);
+
+// FC Detail
+//$fc_detail_data             =       getData($fc_detail_url);
+
+// New Coding Detail
+//$newcoding_detail_data      =       getData($newcoding_detail_url);
 
 // Get Member
 $member_data        =       getData('./csv/member.csv');

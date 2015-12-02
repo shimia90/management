@@ -76,6 +76,16 @@ for ($i = 0; $i < count($newton_data) - 1; $i ++) {
     }
 }
 
+/* foreach($arrayNewton['Newton'] as $key => $value) {
+    for($i = 0; $i < count($newton_detail_data); $i++) {
+        if(trim($value['PROJECT_NO']) == trim($newton_detail_data[$i][1])) {
+            $value['ORDER_DATE']    = $newcoding_detail_data[$i][11];
+            $value['DELIVERY_DATE'] = $newcoding_detail_data[$i][12]; 
+        } else {
+            continue;
+        }
+    }
+} */
 // Domestic Data
 
 array_shift($domestic_data);

@@ -40,8 +40,17 @@ echo '</pre>';
 die(); */
 if(isset($_POST['date_search']) && isset($_POST['user_name']) && trim($_POST['date_search']) != '' && trim($_POST['user_name']) != '') {
     $datePost       =   $_POST['date_search'];
+    $arrayDateRange =   explode(" to ", $datePost);
+    $dateFrom       =   trim($arrayDateRange[0]);
+    $dateTo         =   trim($arrayDateRange[1]);
     $userPost       =   $_POST['user_name'];
-    $queryWork      =   "SELECT * FROM `work` WHERE `work_date` = '{$_POST['date_search']}' AND `user` = {$_POST['user_name']}";    
+    if($dateFrom == $dateTo) {
+        $queryWork      =   "SELECT * FROM `work` WHERE STR_TO_DATE( `work_date`, '%d/%m/%Y' ) = STR_TO_DATE( '{$dateTo}', '%d/%m/%Y' ) AND `user` = {$_POST['user_name']} ORDER BY `work_date` ASC";
+        //SELECT * FROM `work` WHERE STR_TO_DATE( `work_date`, '%d/%m/%Y' ) BETWEEN STR_TO_DATE('02/11/2015', '%d/%m/%Y') AND STR_TO_DATE('23/11/2015', '%d/%m/%Y') AND `user` = 3
+    } else {
+        $queryWork      =   "SELECT * FROM `work` WHERE STR_TO_DATE( `work_date`, '%d/%m/%Y' ) BETWEEN STR_TO_DATE( '{$dateFrom}', '%d/%m/%Y' ) AND STR_TO_DATE( '{$dateTo}', '%d/%m/%Y' ) AND `user` = {$_POST['user_name']} ORDER BY `work_date` ASC";
+    }
+        
     $arrayWork      =   $databaseWork->listRecord($databaseWork->query($queryWork));
     foreach ($arrayWork as $key => $value) {
         foreach($arrayProject as $k => $v) {
@@ -50,6 +59,7 @@ if(isset($_POST['date_search']) && isset($_POST['user_name']) && trim($_POST['da
             }
         }
     }
+    
 }
 if(isset($_POST['date_show'])) {
         $datePost       =   $_POST['date_show'];
@@ -77,12 +87,14 @@ if(isset($_POST['date_show'])) {
         <link href="assets/styles.css" rel="stylesheet" media="screen">
         <link href="assets/DT_bootstrap.css" rel="stylesheet" media="screen">
         <link href="css/jquery-ui.min.css" rel="stylesheet" media="screen">
+        <link rel="stylesheet" href="css/daterangepicker.css" />
         <!--[if lte IE 8]><script language="javascript" type="text/javascript" src="vendors/flot/excanvas.min.js"></script><![endif]-->
         <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
         <!--[if lt IE 9]>
             <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
         <![endif]-->
         <script src="vendors/modernizr-2.6.2-respond-1.1.0.min.js"></script>
+        
     </head>
     <body>
         <?php require_once 'header.php'; ?>
@@ -115,12 +127,28 @@ if(isset($_POST['date_show'])) {
                                                     </select>
                                                 </label>
                                                 <label>
-                                                    Date: <input type="text" id="datepicker" name="date_search" value="<?php echo $datePost; ?>" />
+                                                    Date: <input type="text" id="datepicker_from" name="date_search" value="<?php echo $datePost; ?>" placeholder="Date Range" />
                                                 </label>
                                                 <input type="hidden" name="type" value="single" />
                                                 <input type="hidden" name="page_submit" value="record" />
                                                 <button class="btn btn-warning" type="submit">Search</button>
                                             </form>
+                                            <?php if(isset($_POST['user_name']) && trim($_POST['user_name']) == '') : ?>
+                                                <div class="alert alert-error">
+                                                  <button type="button" class="close" data-dismiss="alert">×</button>
+                                                  <strong>Username is empty!</strong> Please select a user
+                                                </div>
+                                            <?php elseif(isset($_POST['date_search']) && trim($_POST['date_search'] == '')) :?>
+                                                <div class="alert alert-error">
+                                                  <button type="button" class="close" data-dismiss="alert">×</button>
+                                                  <strong>Date is empty!</strong> Please select date
+                                                </div>
+                                            <?php elseif(isset($_POST['date_search']) && isset($_POST['user_name']) && $_POST['date_search'] == '' && $_POST['user_name'] == '') : ?>
+                                                <div class="alert alert-error">
+                                                  <button type="button" class="close" data-dismiss="alert">×</button>
+                                                  <strong>These fields are empty! </strong> Please input
+                                                </div>
+                                            <?php endif; ?>
                                         </div>
                                         <div class="working_time">
                                             <p>Being late/ Leave early: <span></span></p>
@@ -188,6 +216,7 @@ if(isset($_POST['date_show'])) {
 										                  $totalReal      +=      $value['real_duration'];
 										                  $totalPerformance += $value['performance'];
 										  ?>
+										  <tr class="info"><td colspan="<?php if(isset($_POST['date_show'])) { echo '15'; } else { echo '14'; } ?>"><strong><?php echo $value['work_date']; ?></strong></td></tr>
 								          <tr class="gradeX">
 								            <td class="text-center"><?php echo $key+1; ?></td>
 								            <?php if(isset($_POST['date_show'])) :?>
@@ -211,30 +240,34 @@ if(isset($_POST['date_show'])) {
 									      <?php 
 									               $i++;
 									           endforeach;
-										      }
+									           if(!@$_POST['date_show'] && isset($_POST['date_search']) && $_POST['date_search'] != '' && $_POST['user_name'] != '') : ?>  
+           									       <tr>
+           									           <?php 
+           									               $statusClass = '';
+           									               if($totalStandard <= 6 || $totalReal <= 6) {
+           									                   $statusClass = 'label-important';
+           									               } elseif($totalStandard >= 7 && $totalStandard <= 8 || $totalReal >= 7 && $totalReal <= 8) {
+           									                   $statusClass = 'label-info';
+           									               } elseif($totalStandard > 8 && $totalReal > 8) {
+           									                   $statusClass = 'label-success';
+           									               }
+           									           ?>
+           									           <td colspan="7"></td>
+           									           <td class="text-center"><b>Total</b></td>
+           									           <td class="text-center"><span class="label <?php echo $statusClass; ?>"><?php echo $totalStandard;?></span></td>
+           									           <td class="text-center"><span class="label <?php echo $statusClass; ?>"><?php echo $totalReal; ?></span></td>
+           									           <td></td>
+           									           <td class="text-center"><b>Average</b></td>
+           									           <td class="text-center"><span class="label <?php echo $statusClass; ?>"><?php echo round(($totalStandard / $totalReal * 100), 2); ?>%</span><td>
+           									           <td colspan="2"></td>
+           									       </tr>
+           								   <?php endif;
+										      } else {
 									       ?>
-									       <?php if(!@$_POST['date_show'] && isset($_POST['date_search']) && $_POST['date_search'] != '') : ?>
-									       <tr>
-									           <?php 
-									               $statusClass = '';
-									               if($totalStandard <= 6 || $totalReal <= 6) {
-									                   $statusClass = 'label-important';
-									               } elseif($totalStandard >= 7 && $totalStandard <= 8 || $totalReal >= 7 && $totalReal <= 8) {
-									                   $statusClass = 'label-info';
-									               } elseif($totalStandard > 8 && $totalReal > 8) {
-									                   $statusClass = 'label-success';
-									               }
-									           ?>
-									           <td colspan="7"></td>
-									           <td class="text-center"><b>Total</b></td>
-									           <td class="text-center"><span class="label <?php echo $statusClass; ?>"><?php echo $totalStandard;?></span></td>
-									           <td class="text-center"><span class="label <?php echo $statusClass; ?>"><?php echo $totalReal; ?></span></td>
-									           <td></td>
-									           <td class="text-center"><b>Average</b></td>
-									           <td class="text-center"><span class="label <?php echo $statusClass; ?>"><?php echo ($totalStandard / $totalReal * 100); ?>%</span><td>
-									           <td colspan="2"></td>
-									       </tr>
-									       <?php endif; ?>         
+									             <tr class="warning">
+									               <td class="text-center" colspan="<?php if(isset($_POST['date_show'])) { echo '15'; } else { echo '14'; } ?>"><strong>No Records</strong></td>
+									             </tr>
+									       <?php } ?>
 										</tbody>
 									</table>
                                 </div>
@@ -261,13 +294,9 @@ if(isset($_POST['date_show'])) {
         <script src="js/jquery-ui.min.js"></script>
         <script src="js/custom.js"></script>
         <script src="js/jquery.floatThead.min.js"></script>
-        <script type="text/javascript">
-        /* $(document).ready(function(){
-            $("#btn_show").click(function(){
-                $("#user_form").submit();
-            });
-        }); */
-
+        <script src="js/moment.min.js"></script>
+        <script src="js/jquery.daterangepicker.js"></script>
+        <script type="text/javascript">        
         $(document).ready(function () {
             var showPopover = $.fn.popover.Constructor.prototype.show;
             $.fn.popover.Constructor.prototype.show = function () {
@@ -292,7 +321,12 @@ if(isset($_POST['date_show'])) {
             	}
             });
 
+            $('#datepicker_from').dateRangePicker({
+                format: 'DD/MM/YYYY'
+            });
+
         });
+        
         </script>
     </body>
 
