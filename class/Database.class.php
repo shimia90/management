@@ -205,7 +205,7 @@ class Database{
 	    if(mysqli_num_rows($this->query($newQuery)) > 0) {
 	        return true;
 	    }
-	    return false;  
+	    return false;
 	}
 	
 	

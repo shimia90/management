@@ -58,12 +58,11 @@ if(!empty($arrayMaintenance)) {
             $arrayToSelect['project_name']  = $arrayMaintenance['Maintenance'][$key]['project_name'];
             $arrayToSelect['work_date']  = $arrayMaintenance['Maintenance'][$key]['work_date'];
             $arrayToSelect['user']  = $arrayMaintenance['Maintenance'][$key]['user'];
-            if($databaseWork->checkExistRow($arrayToSelect) == true) {
-                $arrayIdMaintenance = $databaseWork->returnID($arrayMaintenance['Maintenance'][$key]);
-                foreach($arrayIdMaintenance as $key => $value) {
-                    $arrayMaitenanceWhere[] = array('id',$value['id'], null);    
-                }
-                @$databaseWork->update($arrayMaintenance['Maintenance'][$key], $arrayMaitenanceWhere);
+            if($databaseWork->checkExistRow($arrayToSelect) == 1) {
+                $arrayIdMaintenance = $databaseWork->returnID($arrayToSelect);
+                if(!empty($arrayIdMaintenance)) {
+                    $databaseWork->update($arrayMaintenance['Maintenance'][$key], array(array('id', $arrayIdMaintenance[0]['id'], null)));
+                }    
             } else {
                 $databaseWork->insert($arrayMaintenance['Maintenance'][$key]);
             }
@@ -95,12 +94,12 @@ if(!empty($arrayNewton)) {
            $arrayNewtonToSelect['work_date']   =   $arrayNewton['Newton'][$key]['work_date'];
            $arrayNewtonToSelect['user']   =   $arrayNewton['Newton'][$key]['user'];
            $arrayNewtonToSelect['type']   =   $arrayNewton['Newton'][$key]['type'];
-            if($databaseWork->checkExistRow($arrayNewtonToSelect) == true) {
-                $arrayIdNewton = $databaseWork->returnID($arrayNewton['Newton'][$key]);
-                foreach($arrayIdNewton as $key => $value) {
-                    $arrayNewtonWhere[] = array('id',$value['id'], null);    
+            if($databaseWork->checkExistRow($arrayNewtonToSelect) == 1) {
+                
+                $arrayIdNewton = $databaseWork->returnID($arrayNewtonToSelect);
+                if(!empty($arrayIdNewton)) {
+                    $databaseWork->update($arrayNewton['Newton'][$key], array(array('id', $arrayIdNewton[0]['id'], null)));
                 }
-                @$databaseWork->update($arrayNewton['Newton'][$key], $arrayNewtonWhere);
             } else {
                 $databaseWork->insert($arrayNewton['Newton'][$key]);
             }
@@ -130,13 +129,17 @@ if(!empty($arrayDomestic)) {
             $arrayDomesticToSelect['project_type']  =   $arrayDomestic['Domestic'][$key]['project_type'];
             $arrayDomesticToSelect['user']  =   $arrayDomestic['Domestic'][$key]['user'];
             $arrayDomesticToSelect['work_date']  =   $arrayDomestic['Domestic'][$key]['work_date'];
+            $arrayDomesticToSelect['work_content']  =   $arrayDomestic['Domestic'][$key]['work_content'];
             $arrayDomesticToSelect['type']  =   $arrayDomestic['Domestic'][$key]['type'];
-            if($databaseWork->checkExistRow($arrayDomesticToSelect) == true) {
-                $arrayIdDomestic = $databaseWork->returnID($arrayDomestic['Domestic'][$key]);
-                foreach($arrayIdDomestic as $key => $value) {
-                    $arrayDomesticWhere[] = array('id',$value['id'], null);
+            $arrayDomesticToSelect['status']  =   $arrayDomestic['Domestic'][$key]['status'];
+            $arrayDomesticToSelect['start']  =   $arrayDomestic['Domestic'][$key]['start'];
+            $arrayDomesticToSelect['end']  =   $arrayDomestic['Domestic'][$key]['end'];
+            if($databaseWork->checkExistRow($arrayDomesticToSelect) == 1) {
+                
+                $arrayIdDomestic = $databaseWork->returnID($arrayDomesticToSelect);
+                if(!empty($arrayIdDomestic)) {
+                    $databaseWork->update($arrayDomestic['Domestic'][$key], array(array('id', $arrayIdDomestic[0]['id'], null)));
                 }
-                $databaseWork->update($arrayDomestic['Domestic'][$key], $arrayDomesticWhere);
             } else {
                 $databaseWork->insert($arrayDomestic['Domestic'][$key]);
             }
@@ -170,11 +173,10 @@ if(!empty($arrayFc)) {
             $arrayFcToSelect['type']    =   $arrayFc['FC'][$key]['type'];
             $arrayFcToSelect['page_name']    =   $arrayFc['FC'][$key]['page_name'];
             if($databaseWork->checkExistRow($arrayFcToSelect) == true) {
-                $arrayIdFC = $databaseWork->returnID($arrayFc['FC'][$key]);
-                foreach($arrayIdFC as $key => $value) {
-                    $arrayFCWhere[] = array('id',$value['id'], null);
+                $arrayIdFC = $databaseWork->returnID($arrayFcToSelect);
+                if(!empty($arrayIdFC)) {
+                    $databaseWork->update($arrayFc['FC'][$key], array(array('id', $arrayIdFC[0]['id'], null)));
                 }
-                @$databaseWork->update($arrayFc['FC'][$key], $arrayFCWhere);
             } else {
                 $databaseWork->insert($arrayFc['FC'][$key]);
             }
@@ -205,11 +207,10 @@ if(!empty($arrayOther)) {
             $arrayOtherToSelect['user']             =   $arrayOther['Other'][$key]['user'];
             $arrayOtherToSelect['work_date']     =   $arrayOther['Other'][$key]['work_date'];
             if($databaseWork->checkExistRow($arrayOtherToSelect) == true) {
-                $arrayIdOther = $databaseWork->returnID($arrayOther['Other'][$key]);
-                foreach($arrayIdOther as $key => $value) {
-                    $arrayOtherWhere[] = array('id',$value['id'], null);
+                $arrayIdOther = $databaseWork->returnID($arrayOtherToSelect);
+                if(!empty($arrayIdOther)) {
+                    $databaseWork->update($arrayOther['Other'][$key], array(array('id', $arrayIdOther[0]['id'], null)));
                 }
-                $databaseWork->update($arrayOther['Other'][$key], $arrayOtherWhere);
             } else {
                 $databaseWork->insert($arrayOther['Other'][$key]);
             }
@@ -241,11 +242,15 @@ if(!empty($arrayResearch)) {
             $arrayResearchToSelect['user'] = $arrayResearch['Research'][$key]['user'];
             $arrayResearchToSelect['work_date'] = $arrayResearch['Research'][$key]['work_date'];
             if($databaseWork->checkExistRow($arrayResearchToSelect) == true) {
-                $arrayIdResearch = $databaseWork->returnID($arrayResearch['Research'][$key]);
+                /* $arrayIdResearch = $databaseWork->returnID($arrayResearch['Research'][$key]);
                 foreach($arrayIdResearch as $key => $value) {
                     $arrayResearchWhere[] = array('id',$value['id'], null);
                 }
-                @$databaseWork->update($arrayResearch['Research'][$key], $arrayResearchWhere);
+                @$databaseWork->update($arrayResearch['Research'][$key], $arrayResearchWhere); */
+                $arrayIdResearch = $databaseWork->returnID($arrayResearchToSelect);
+                if(!empty($arrayIdResearch)) {
+                    $databaseWork->update($arrayResearch['Research'][$key], array(array('id', $arrayIdResearch[0]['id'], null)));
+                }
             } else {
                 $databaseWork->insert($arrayResearch['Research'][$key]);
             }
@@ -278,11 +283,10 @@ if(!empty($arrayNewCoding)) {
             $arrayNewCodingToSelect['user']   =   $arrayNewCoding['NewCoding'][$key]['user'];
             $arrayNewCodingToSelect['work_content']   =   $arrayNewCoding['NewCoding'][$key]['work_content'];
             if($databaseWork->checkExistRow($arrayNewCoding['NewCoding'][$key]) == true) {
-                $arrayIdCoding = $databaseWork->returnID($arrayNewCoding['NewCoding'][$key]);
-                foreach($arrayIdCoding as $key => $value) {
-                    $arrayNewCodingWhere[] = array('id',$value['id'], null);
+                $arrayIdCoding = $databaseWork->returnID($arrayNewCodingToSelect);
+                if(!empty($arrayIdCoding)) {
+                    $databaseWork->update($arrayNewCoding['NewCoding'][$key], array(array('id', $arrayIdCoding[0]['id'], null)));
                 }
-                $databaseWork->update($arrayNewCoding['NewCoding'][$key], $arrayNewCodingWhere);
             } else {
                 $databaseWork->insert($arrayNewCoding['NewCoding'][$key]);
             }

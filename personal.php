@@ -1,4 +1,5 @@
 <?php
+require_once 'get_worktime.php';
 $today          = date("d/m/Y");
 if(isset($_GET['updateSQL']) && $_GET['updateSQL'] == 'yes') {
     require_once 'import_work.php';
@@ -151,8 +152,36 @@ if(isset($_POST['date_show'])) {
                                             <?php endif; ?>
                                         </div>
                                         <div class="working_time">
-                                            <p>Being late/ Leave early: <span></span></p>
-                                            <p>Working dur: <span></span></p>
+                                                <?php 
+                                                    if(isset($_POST['user_name']) && trim($_POST['user_name']) != '' && isset($_POST['date_search']) && trim($_POST['user_name']) != '') {
+                                                       
+                                                        $arrayDateRange =   explode(" to ", $_POST['date_search']);
+                                                        $dateFrom1       =   trim($arrayDateRange[0]);
+                                                        $dateTo1         =   trim($arrayDateRange[1]);
+                                                        if($dateFrom1 == $dateFrom1) {
+                                                            foreach($finalArray as $key => $value) {
+                                                                if($key == $dateTo1) :
+                                                                    foreach($value as $k => $v) :
+                                                                        foreach($arrayUser as $a => $b) :
+                                                                            if($b['nickname'] == $k) {
+                                                                                $k = $b['id'];
+                                                                            }
+                                                                        endforeach;
+                                                                        if($k == $_POST['user_name']) {
+                                                                            echo '<p>Being late/ Leave early: <strong>'.($v['Delay']+$v['Unpaid']+$v['Special Paid']+$v['Paid']+$v['Others']).'</strong></p>';
+                                                                            echo '<p>Working dur: <strong>'.((8 + $v['Overtime']) - ($v['Delay'] + $v['Unpaid'] + $v['Special Paid'] + $v['Paid'] + $v['Others'])).'</strong></p>';
+                                                                            echo '<p>Overtime: <strong>'.$v['Overtime'].'</strong></p>';
+                                                                            
+                                                                        }
+                                                                    endforeach;
+                                                                endif;
+                                                            }
+                                                        } else {
+                                                            
+                                                        }
+                                                        
+                                                    }
+                                                ?>
                                         </div>
                                     </div>
                                     <div class="span6 text-right"><a class="btn btn-success" href="personal.php?updateSQL=yes">Update Latest Data</a> <button tabindex="0" class="btn btn-primary" role="button" data-toggle="popover" data-trigger="click" data-placement="left" data-container="body" data-html="true" id="PopS"
@@ -178,6 +207,7 @@ if(isset($_POST['date_show'])) {
   									<table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-fixed" id="example">
 										<thead>
 											<tr class="success">
+											    <th>Working Date</th>
 												<th class="text-center">No</th>
 												<?php if(isset($_POST['date_show'])) :?>
 												<th class="text-center">Designer</th>
@@ -212,12 +242,19 @@ if(isset($_POST['date_show'])) {
 										                  }   
 										                  endforeach;
 										                  $tmpUser = $value['user'];
-										                  $totalStandard  += $value['standard_duration'];
-										                  $totalReal      +=      $value['real_duration'];
+										                  if($value['project_type'] == 'Other' || $value['project_type'] == 'Research') {
+										                      $totalStandard  += 0;
+										                      $totalReal      += 0;
+										                  } else {
+										                      $totalStandard  += $value['standard_duration'];
+										                      $totalReal      +=      $value['real_duration'];
+										                  }
+
 										                  $totalPerformance += $value['performance'];
 										  ?>
-										  <tr class="info"><td colspan="<?php if(isset($_POST['date_show'])) { echo '15'; } else { echo '14'; } ?>"><strong><?php echo $value['work_date']; ?></strong></td></tr>
+										  
 								          <tr class="gradeX">
+								            <td><?php echo $value['work_date']; ?></td>
 								            <td class="text-center"><?php echo $key+1; ?></td>
 								            <?php if(isset($_POST['date_show'])) :?>
 											     <td class="text-center"><?php echo $value['user']; ?></td>
@@ -252,7 +289,7 @@ if(isset($_POST['date_show'])) {
            									                   $statusClass = 'label-success';
            									               }
            									           ?>
-           									           <td colspan="7"></td>
+           									           <td colspan="8"></td>
            									           <td class="text-center"><b>Total</b></td>
            									           <td class="text-center"><span class="label <?php echo $statusClass; ?>"><?php echo $totalStandard;?></span></td>
            									           <td class="text-center"><span class="label <?php echo $statusClass; ?>"><?php echo $totalReal; ?></span></td>
