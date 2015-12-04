@@ -37,10 +37,10 @@ $userPost           =   '';
 $arrayWork          =   array();
 $dateFrom           =   $today;
 $dateTo             =   $today;
-/* echo '<pre>';
-print_r($arrayUser);
-echo '</pre>';
-die(); */
+$dateAllFrom        =   $today;
+$dateAllTo          =   $today;
+
+
 if(isset($_POST['date_from']) && isset($_POST['user_name']) && isset($_POST['date_to']) && trim($_POST['date_from']) != '' && trim($_POST['date_to']) != '' && trim($_POST['user_name']) != '') {
     $dateFrom       =   trim($_POST['date_from']);
     $dateTo         =   trim($_POST['date_to']);
@@ -62,9 +62,15 @@ if(isset($_POST['date_from']) && isset($_POST['user_name']) && isset($_POST['dat
     }
     
 }
-if(isset($_POST['date_show'])) {
-        $datePost       =   $_POST['date_show'];
-        $queryWork      =   "SELECT * FROM `work` WHERE `work_date` = '{$datePost}' ORDER BY `user` ASC";
+if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST['date_all_from']) != '' && trim($_POST['date_all_to']) != '') {
+        $dateAllFrom       =    $_POST['date_all_from'];
+        $dateAllTo          =   $_POST['date_all_to'];
+        if($dateAllFrom == $dateAllTo) {
+            $queryWork      =   "SELECT * FROM `work` WHERE STR_TO_DATE( `work_date`, '%d/%m/%Y' ) = STR_TO_DATE( '{$dateAllTo}', '%d/%m/%Y' ) ORDER BY `user`, `work_date` ASC";
+        } else {
+            $queryWork      =   "SELECT * FROM `work` WHERE STR_TO_DATE( `work_date`, '%d/%m/%Y' ) BETWEEN STR_TO_DATE( '{$dateAllFrom}', '%d/%m/%Y' ) AND STR_TO_DATE( '{$dateAllTo}', '%d/%m/%Y' ) ORDER BY `user`, `work_date` ASC";
+        }
+        
         $arrayWork      =   $databaseWork->listRecord($databaseWork->query($queryWork));
         foreach ($arrayWork as $key => $value) {
             foreach($arrayProject as $k => $v) {
@@ -181,19 +187,28 @@ if(isset($_POST['date_show'])) {
                                                     }
                                                 ?>
                                         </div>
+                                        
                                     </div>
                                     <div class="span6 text-right"><a class="btn btn-success" href="personal.php?updateSQL=yes">Update Latest Data</a> <button tabindex="0" class="btn btn-primary" role="button" data-toggle="popover" data-trigger="click" data-placement="left" data-container="body" data-html="true" id="PopS"
                                         data-content='
                                         <div id="popover-content">
                                         <form role="form" method="post" action="personal.php">
+                                            
                                             <div class="form-group">
                                                 <label>Select Date</label>
                                                 <div class="input-group date">
-                                                    <input type="text" class="form-control" placeholder="Select Date" id="datetimepicker1" name="date_show" />
+                                                    <input type="text" class="form-control" id="datetimepicker" name="date_all_from" placeholder="From" />
                                                     <span class="input-group-addon">
                                                         <span class="glyphicon glyphicon-calendar"></span>
                                                     </span>
                                                 </div>
+                                                <div class="input-group date">
+                                                    <input type="text" class="form-control" id="datetimepicker1" name="date_all_to" placeholder="To" />
+                                                    <span class="input-group-addon">
+                                                        <span class="glyphicon glyphicon-calendar"></span>
+                                                    </span>
+                                                </div>
+                                                
                                             </div>
                                             <div class="form-group">
                                                 <button class="btn btn-primary btn-block" type="submit">Show</button>
@@ -207,7 +222,7 @@ if(isset($_POST['date_show'])) {
 											<tr class="success">
 											    <th>Working Date</th>
 												<th class="text-center">No</th>
-												<?php if(isset($_POST['date_show'])) :?>
+												<?php if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST['date_all_from']) != '' && trim($_POST['date_all_to'])) :?>
 												<th class="text-center">Designer</th>
 												<?php endif; ?>
 												<th class="text-center">Project Type</th>
@@ -254,7 +269,7 @@ if(isset($_POST['date_show'])) {
 								          <tr class="gradeX">
 								            <td><?php echo $value['work_date']; ?></td>
 								            <td class="text-center"><?php echo $key+1; ?></td>
-								            <?php if(isset($_POST['date_show'])) :?>
+								            <?php if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST['date_all_from']) != '' && trim($_POST['date_all_to'])) : ?>
 											     <td class="text-center"><?php echo $value['user']; ?></td>
 											<?php endif; ?>
 								            <td class="text-center"><?php echo emptyReturn($value['project_type']); ?></td>
@@ -275,7 +290,7 @@ if(isset($_POST['date_show'])) {
 									      <?php 
 									               $i++;
 									           endforeach;
-									           if(!@$_POST['date_show'] && isset($_POST['date_from']) && isset($_POST['date_to']) && $_POST['date_from'] != '' && $_POST['date_to'] && $_POST['user_name'] != '') : ?>  
+									           if(!@$_POST['date_all_from'] && isset($_POST['date_from']) && isset($_POST['date_to']) && $_POST['date_from'] != '' && $_POST['date_to'] && $_POST['user_name'] != '') : ?>  
            									       <tr>
            									           <?php 
            									               $statusClass = '';
@@ -300,7 +315,7 @@ if(isset($_POST['date_show'])) {
 										      } else {
 									       ?>
 									             <tr class="warning">
-									               <td class="text-center" colspan="<?php if(isset($_POST['date_show'])) { echo '15'; } else { echo '14'; } ?>"><strong>No Records</strong></td>
+									               <td class="text-center" colspan="<?php if(isset($_POST['date_all_from']) && isset($_POST['date_all_to'])) { echo '15'; } else { echo '14'; } ?>"><strong>No Records</strong></td>
 									             </tr>
 									       <?php } ?>
 										</tbody>
@@ -347,6 +362,31 @@ if(isset($_POST['date_show'])) {
                 	$("#datetimepicker1").datepicker({
                 		dateFormat:"dd/mm/yy",
                 	});
+
+                	$("#datetimepicker").datepicker({
+                		dateFormat:"dd/mm/yy",
+                	    onSelect: function(dateText, inst) {
+                	        var date = $(this).val();
+                	        $("#datetimepicker1").val(date);
+                	    }
+                	});
+
+                	/* $('#show_all_search').dateRangePicker({
+                        format: 'DD/MM/YYYY',
+                        separator : ' to ',
+                    	getValue: function()
+                    	{
+                    		if ($('#date_all_from').val() && $('#date_all_to').val() )
+                    			return $('#date_all_from').val() + ' to ' + $('#date_all_to').val();
+                    		else
+                    			return '';
+                    	},
+                    	setValue: function(s,s1,s2)
+                    	{
+                    		$('#date_all_from').val(s1);
+                    		$('#date_all_to').val(s2);
+                    	}
+                    }); */
                 }
             });
 
