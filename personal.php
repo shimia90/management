@@ -35,15 +35,15 @@ $arrayProject       =   $databaseProject->listRecord($databaseProject->query('SE
 $datePost           =   '';
 $userPost           =   '';
 $arrayWork          =   array();
+$dateFrom           =   $today;
+$dateTo             =   $today;
 /* echo '<pre>';
 print_r($arrayUser);
 echo '</pre>';
 die(); */
-if(isset($_POST['date_search']) && isset($_POST['user_name']) && trim($_POST['date_search']) != '' && trim($_POST['user_name']) != '') {
-    $datePost       =   $_POST['date_search'];
-    $arrayDateRange =   explode(" to ", $datePost);
-    $dateFrom       =   trim($arrayDateRange[0]);
-    $dateTo         =   trim($arrayDateRange[1]);
+if(isset($_POST['date_from']) && isset($_POST['user_name']) && isset($_POST['date_to']) && trim($_POST['date_from']) != '' && trim($_POST['date_to']) != '' && trim($_POST['user_name']) != '') {
+    $dateFrom       =   trim($_POST['date_from']);
+    $dateTo         =   trim($_POST['date_to']);
     $userPost       =   $_POST['user_name'];
     if($dateFrom == $dateTo) {
         $queryWork      =   "SELECT * FROM `work` WHERE STR_TO_DATE( `work_date`, '%d/%m/%Y' ) = STR_TO_DATE( '{$dateTo}', '%d/%m/%Y' ) AND `user` = {$_POST['user_name']} ORDER BY `work_date` ASC";
@@ -114,6 +114,7 @@ if(isset($_POST['date_show'])) {
                                 <div class="span12">
                                     <div id="search-information">
                                         <div class="span6">
+                                        
                                         <div id="example_length">
                                             <form action="personal.php" method="post" id="user_form" class="form-inline mb_10">
                                                 <label>
@@ -128,7 +129,8 @@ if(isset($_POST['date_show'])) {
                                                     </select>
                                                 </label>
                                                 <label>
-                                                    Date: <input type="text" id="datepicker_from" name="date_search" value="<?php echo $datePost; ?>" placeholder="Date Range" />
+                                                    <!-- Date: <input type="text" id="datepicker_from" name="date_search" value="<?php //echo $datePost; ?>" placeholder="Date Range" />  -->
+                                                    From <span id="two-inputs"><input id="date-range200" size="20" name="date_from" value="<?php echo $dateFrom; ?>"> To <input id="date-range201" size="20" name="date_to" value="<?php echo $dateTo; ?>"></span>
                                                 </label>
                                                 <input type="hidden" name="type" value="single" />
                                                 <input type="hidden" name="page_submit" value="record" />
@@ -139,12 +141,12 @@ if(isset($_POST['date_show'])) {
                                                   <button type="button" class="close" data-dismiss="alert">×</button>
                                                   <strong>Username is empty!</strong> Please select a user
                                                 </div>
-                                            <?php elseif(isset($_POST['date_search']) && trim($_POST['date_search'] == '')) :?>
+                                            <?php elseif(isset($_POST['date_from']) && trim($_POST['date_from'] == '') || isset($_POST['date_to']) && trim($_POST['date_to'] == '') ) :?>
                                                 <div class="alert alert-error">
                                                   <button type="button" class="close" data-dismiss="alert">×</button>
                                                   <strong>Date is empty!</strong> Please select date
                                                 </div>
-                                            <?php elseif(isset($_POST['date_search']) && isset($_POST['user_name']) && $_POST['date_search'] == '' && $_POST['user_name'] == '') : ?>
+                                            <?php elseif(isset($_POST['date_from']) && isset($_POST['user_name']) && isset($_POST['date_to']) && $_POST['date_from'] == '' && $_POST['date_to'] == '' && $_POST['user_name'] == '') : ?>
                                                 <div class="alert alert-error">
                                                   <button type="button" class="close" data-dismiss="alert">×</button>
                                                   <strong>These fields are empty! </strong> Please input
@@ -153,14 +155,10 @@ if(isset($_POST['date_show'])) {
                                         </div>
                                         <div class="working_time">
                                                 <?php 
-                                                    if(isset($_POST['user_name']) && trim($_POST['user_name']) != '' && isset($_POST['date_search']) && trim($_POST['user_name']) != '') {
-                                                       
-                                                        $arrayDateRange =   explode(" to ", $_POST['date_search']);
-                                                        $dateFrom1       =   trim($arrayDateRange[0]);
-                                                        $dateTo1         =   trim($arrayDateRange[1]);
-                                                        if($dateFrom1 == $dateFrom1) {
+                                                    if(isset($_POST['user_name']) && trim($_POST['user_name']) != '' && isset($_POST['date_from']) && trim($_POST['date_from']) != '' && isset($_POST['date_to']) && trim($_POST['date_to']) != '') {
+                                                        if($dateFrom == $dateFrom) {
                                                             foreach($finalArray as $key => $value) {
-                                                                if($key == $dateTo1) :
+                                                                if($key == $dateTo) :
                                                                     foreach($value as $k => $v) :
                                                                         foreach($arrayUser as $a => $b) :
                                                                             if($b['nickname'] == $k) {
@@ -259,25 +257,25 @@ if(isset($_POST['date_show'])) {
 								            <?php if(isset($_POST['date_show'])) :?>
 											     <td class="text-center"><?php echo $value['user']; ?></td>
 											<?php endif; ?>
-								            <td class="text-center"><?php echo $value['project_type']?></td>
-											<td class="text-center"><?php echo $value['project_no']?></td>
-											<td class="text-center"><?php echo $value['project_name']?></td>
-											<td class="text-center"><?php echo $value['order_date']?></td>
-											<td class="text-center"><?php echo $value['delivery_date']?></td>
-											<td class="text-center"><?php echo $value['delivery_before']?></td>
-											<td class="text-center"><?php echo $value['status']?></td>
-											<td class="text-center"><?php echo $value['standard_duration']?></td>
-											<td class="text-center"><?php echo $value['real_duration']?></td>
-											<td class="text-center"><?php echo $value['start']?></td>
-											<td class="text-center"><?php echo $value['end']?></td>
-											<td class="text-center"><?php echo $value['performance']?></td>
-											<td class="text-center"><?php echo $value['note']?></td>
+								            <td class="text-center"><?php echo emptyReturn($value['project_type']); ?></td>
+											<td class="text-center"><?php echo emptyReturn($value['project_no']); ?></td>
+											<td class="text-center"><?php echo emptyReturn($value['project_name']); ?></td>
+											<td class="text-center"><?php echo emptyReturn($value['order_date']); ?></td>
+											<td class="text-center"><?php echo emptyReturn($value['delivery_date']); ?></td>
+											<td class="text-center"><?php echo emptyReturn($value['delivery_before']); ?></td>
+											<td class="text-center"><?php echo emptyReturn($value['status']); ?></td>
+											<td class="text-center"><?php echo emptyReturn($value['standard_duration']); ?></td>
+											<td class="text-center"><?php echo emptyReturn($value['real_duration']); ?></td>
+											<td class="text-center"><?php echo emptyReturn($value['start']); ?></td>
+											<td class="text-center"><?php echo emptyReturn($value['end']); ?></td>
+											<td class="text-center"><?php echo emptyReturn($value['performance']); ?></td>
+											<td class="text-center"><?php echo emptyReturn($value['note']); ?></td>
 									      </tr>
 									      
 									      <?php 
 									               $i++;
 									           endforeach;
-									           if(!@$_POST['date_show'] && isset($_POST['date_search']) && $_POST['date_search'] != '' && $_POST['user_name'] != '') : ?>  
+									           if(!@$_POST['date_show'] && isset($_POST['date_from']) && isset($_POST['date_to']) && $_POST['date_from'] != '' && $_POST['date_to'] && $_POST['user_name'] != '') : ?>  
            									       <tr>
            									           <?php 
            									               $statusClass = '';
@@ -314,6 +312,7 @@ if(isset($_POST['date_show'])) {
                     </div>
                 </div>
             </div>
+            
             <hr>
             <footer>
                 <p>&copy; Freesale Vietnam</p>
@@ -358,8 +357,25 @@ if(isset($_POST['date_show'])) {
             	}
             });
 
-            $('#datepicker_from').dateRangePicker({
+            /* $('#datepicker_from').dateRangePicker({
                 format: 'DD/MM/YYYY'
+            }); */
+
+            $('#two-inputs').dateRangePicker({
+                format: 'DD/MM/YYYY',
+                separator : ' to ',
+            	getValue: function()
+            	{
+            		if ($('#date-range200').val() && $('#date-range201').val() )
+            			return $('#date-range200').val() + ' to ' + $('#date-range201').val();
+            		else
+            			return '';
+            	},
+            	setValue: function(s,s1,s2)
+            	{
+            		$('#date-range200').val(s1);
+            		$('#date-range201').val(s2);
+            	}
             });
 
         });

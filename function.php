@@ -40,3 +40,10 @@ function convertMonth($str) {
     $month = $arrayDate[1];
     return $month;
 }
+
+function emptyReturn($str) {
+    if(trim($str) == '') {
+        $str = '-';
+    }
+    return $str;
+}
