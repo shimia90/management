@@ -1,13 +1,16 @@
-<?php
+<meta charset="UTF-8"><?php
 require_once 'link.php';
 
-$arrayMaintenance   =   array();
-$arrayNewton        =   array();
-$arrayDomestic      =   array();
-$arrayFc            =   array();
-$arrayOther         =   array();
-$arrayResearch      =   array();
-$arrayNewCoding      =   array();
+$arrayMaintenance       =   array();
+$arrayNewton            =   array();
+$arrayDomestic          =   array();
+$arrayFc                =   array();
+$arrayOther             =   array();
+$arrayResearch          =   array();
+$arrayNewCoding         =   array();
+$arrayNewtonDetail      =   array();
+$arrayFcDetail          =   array();
+$arrayNewCodingDetail   =   array();
 
 // Maintenance
 array_shift($maintenance_data);
@@ -42,6 +45,41 @@ for ($i = 0; $i < count($maintenance_data) - 1; $i ++) {
     }
 }
 
+//Newton Detail
+array_shift($newton_detail_data);
+
+
+for ($i = 0; $i < count($newton_detail_data) - 1; $i ++) {
+    if (trim($newton_detail_data[$i][11]) != '' && trim($newton_detail_data[$i][12]) != '' && trim($newton_detail_data[$i][13]) != '') {
+        if ($newton_detail_data[$i][6] == '') {
+            unset($newton_detail_data[$i][6]);
+            continue;
+        } else {
+            $newton_detail_data[$i][8] = str_replace(',', '.', $newton_detail_data[$i][8]);
+            //$newton_detail_data[$i][5] = str_replace(',', '.', $newton_detail_data[$i][5]);
+            $arrayNewtonDetail['Newton'][$i]['PROJECT_NO'] = $newton_detail_data[$i][1];
+            $arrayNewtonDetail['Newton'][$i]['PROJECT_TYPE'] = 'Newton';
+            $arrayNewtonDetail['Newton'][$i]['ORDER_DATE'] = $newton_detail_data[$i][11];
+            $arrayNewtonDetail['Newton'][$i]['WORK_DATE'] = $newton_detail_data[$i][13];
+            $arrayNewtonDetail['Newton'][$i]['PROJECT_NAME'] = $newton_detail_data[$i][4];
+            $arrayNewtonDetail['Newton'][$i]['STATUS'] = $newton_detail_data[$i][5];
+            $arrayNewtonDetail['Newton'][$i]['STANDARD_DURATION'] = $newton_detail_data[$i][8];
+            $arrayNewtonDetail['Newton'][$i]['DELIVERY_DATE'] = $newton_detail_data[$i][12];
+            $arrayNewtonDetail['Newton'][$i]['DELIVERY_BEFORE'] = $newton_detail_data[$i][10];
+            $arrayNewtonDetail['Newton'][$i]['USER'] = $newton_detail_data[$i][6];
+            $arrayNewtonDetail['Newton'][$i]['START'] = $newton_detail_data[$i][15];
+            $arrayNewtonDetail['Newton'][$i]['END'] = $newton_detail_data[$i][16];
+            $arrayNewtonDetail['Newton'][$i]['REAL_DURATION'] = $newton_detail_data[$i][19];
+            $arrayNewtonDetail['Newton'][$i]['PERFORMANCE'] = '';
+            $arrayNewtonDetail['Newton'][$i]['NOTE'] = $newton_detail_data[$i][21];
+            $arrayNewtonDetail['Newton'][$i]['PAGE_NAME'] = '';
+            $arrayNewtonDetail['Newton'][$i]['PAGE_NUMBER'] = '';
+            $arrayNewtonDetail['Newton'][$i]['TYPE'] = $newton_detail_data[$i][2];
+            $arrayNewtonDetail['Newton'][$i]['WORK_CONTENT'] = '';
+        }
+    }
+}
+
 // Newton
 array_shift($newton_data);
 
@@ -56,11 +94,23 @@ for ($i = 0; $i < count($newton_data) - 1; $i ++) {
             $arrayNewton['Newton'][$i]['PROJECT_NO'] = $newton_data[$i][1];
             $arrayNewton['Newton'][$i]['PROJECT_TYPE'] = 'Newton';
             $arrayNewton['Newton'][$i]['ORDER_DATE'] = '';
+            $arrayNewton['Newton'][$i]['DELIVERY_DATE'] = '';
+            $arrayNewton['Newton'][$i]['DELIVERY_BEFORE'] = '';
+            foreach($arrayNewtonDetail['Newton'] as $a => $b) {
+                
+                if($arrayNewtonDetail['Newton'][$a]['PROJECT_NO'] == $newton_data[$i][1] && $arrayNewtonDetail['Newton'][$a]['PROJECT_NAME'] == $newton_data[$i][2] && $arrayNewtonDetail['Newton'][$a]['USER'] == $newton_data[$i][7] && $arrayNewtonDetail['Newton'][$a]['WORK_DATE'] == $newton_data[$i][0]) {
+                    $arrayNewton['Newton'][$i]['ORDER_DATE']            = $b['ORDER_DATE'];
+                    $arrayNewton['Newton'][$i]['DELIVERY_DATE']         = $b['DELIVERY_DATE'];
+                    $arrayNewton['Newton'][$i]['DELIVERY_BEFORE']       = $b['DELIVERY_BEFORE'];
+                }
+            }
+               
+            
             $arrayNewton['Newton'][$i]['WORK_DATE'] = $newton_data[$i][0];
             $arrayNewton['Newton'][$i]['PROJECT_NAME'] = $newton_data[$i][2];
             $arrayNewton['Newton'][$i]['STATUS'] = $newton_data[$i][8];
             $arrayNewton['Newton'][$i]['STANDARD_DURATION'] = $newton_data[$i][4];
-            $arrayNewton['Newton'][$i]['DELIVERY_DATE'] = '';
+            
             $arrayNewton['Newton'][$i]['DELIVERY_BEFORE'] = '';
             $arrayNewton['Newton'][$i]['USER'] = $newton_data[$i][7];
             $arrayNewton['Newton'][$i]['START'] = $newton_data[$i][9];
@@ -75,17 +125,6 @@ for ($i = 0; $i < count($newton_data) - 1; $i ++) {
         }
     }
 }
-
-/* foreach($arrayNewton['Newton'] as $key => $value) {
-    for($i = 0; $i < count($newton_detail_data); $i++) {
-        if(trim($value['PROJECT_NO']) == trim($newton_detail_data[$i][1])) {
-            $value['ORDER_DATE']    = $newcoding_detail_data[$i][11];
-            $value['DELIVERY_DATE'] = $newcoding_detail_data[$i][12]; 
-        } else {
-            continue;
-        }
-    }
-} */
 // Domestic Data
 
 array_shift($domestic_data);
@@ -121,6 +160,39 @@ for ($i = 0; $i < count($domestic_data) - 1; $i ++) {
     }
 }
 
+// FC Detail
+
+/* array_shift($fc_detail_data);
+
+for ($i = 0; $i < count($fc_detail_data) - 1; $i ++) {
+    if (trim($fc_detail_data[$i][6]) != '' && trim($fc_detail_data[$i][7]) != '' && trim($fc_detail_data[$i][9]) != '') {
+        if ($fc_detail_data[$i][8] == '') {
+            unset($fc_detail_data[$i][8]);
+            continue;
+        } else {
+            $arrayFcDetail['FC'][$i]['PROJECT_NO'] = $fc_detail_data[$i][0];
+            $arrayFcDetail['FC'][$i]['PROJECT_TYPE'] = 'FC';
+            $arrayFcDetail['FC'][$i]['ORDER_DATE'] = $fc_detail_data[$i][6];
+            $arrayFcDetail['FC'][$i]['WORK_DATE'] = '';
+            $arrayFcDetail['FC'][$i]['PROJECT_NAME'] = $fc_detail_data[$i][2];
+            $arrayFcDetail['FC'][$i]['STATUS'] = $fc_detail_data[$i][9];
+            $arrayFcDetail['FC'][$i]['STANDARD_DURATION'] = '';
+            $arrayFcDetail['FC'][$i]['DELIVERY_DATE'] = '';
+            $arrayFcDetail['FC'][$i]['DELIVERY_BEFORE'] = '';
+            $arrayFcDetail['FC'][$i]['USER'] = $fc_detail_data[$i][8];
+            $arrayFcDetail['FC'][$i]['START'] = $fc_detail_data[$i][10];
+            $arrayFcDetail['FC'][$i]['END'] = $fc_detail_data[$i][11];
+            $arrayFcDetail['FC'][$i]['REAL_DURATION'] = '';
+            $arrayFcDetail['FC'][$i]['PERFORMANCE'] = 0;
+            $arrayFcDetail['FC'][$i]['NOTE'] = $fc_detail_data[$i][13];
+            $arrayFcDetail['FC'][$i]['PAGE_NAME'] = $fc_detail_data[$i][7];
+            $arrayFcDetail['FC'][$i]['PAGE_NUMBER'] = $fc_detail_data[$i][4];
+            $arrayFcDetail['FC'][$i]['TYPE'] = $fc_detail_data[$i][3];
+            $arrayFcDetail['FC'][$i]['WORK_CONTENT'] = '';
+        }
+    }
+} */
+
 // FC Data
 
 array_shift($fc_data);
@@ -155,6 +227,8 @@ for ($i = 0; $i < count($fc_data) - 1; $i ++) {
         }
     }
 }
+
+
 
 // Other Data
 
@@ -227,17 +301,44 @@ for ($i = 0; $i < count($research_data) - 1; $i ++) {
         }
     }
 }
+// New Coding Detail
+/* array_shift($newcoding_detail_data);
 
+for ($i = 0; $i < count($newcoding_detail_data) - 1; $i ++) {
+    if (trim($newcoding_detail_data[$i][7]) != '' && trim($newcoding_detail_data[$i][7]) != '-' && trim($newcoding_detail_data[$i][8]) != '' && trim($newcoding_detail_data[$i][9]) != '') {
+        $arrayNewCodingDetail['NewCoding'][$i]['PROJECT_NO'] = $newcoding_detail_data[$i][3];
+        $arrayNewCodingDetail['NewCoding'][$i]['PROJECT_TYPE'] = 'New Coding';
+        $arrayNewCodingDetail['NewCoding'][$i]['ORDER_DATE'] = $newcoding_detail_data[$i][9];
+        $arrayNewCodingDetail['NewCoding'][$i]['WORK_DATE'] = '';
+        $arrayNewCodingDetail['NewCoding'][$i]['PROJECT_NAME'] = $newcoding_detail_data[$i][5];
+        $arrayNewCodingDetail['NewCoding'][$i]['STATUS'] = '';
+        $arrayNewCodingDetail['NewCoding'][$i]['STANDARD_DURATION'] = $newcoding_detail_data[$i][12];
+        $arrayNewCodingDetail['NewCoding'][$i]['DELIVERY_DATE'] = $newcoding_detail_data[$i][10];;
+        $arrayNewCodingDetail['NewCoding'][$i]['DELIVERY_BEFORE'] = $newcoding_detail_data[$i][8];
+        $arrayNewCodingDetail['NewCoding'][$i]['USER'] = $newcoding_detail_data[$i][7];
+        $arrayNewCodingDetail['NewCoding'][$i]['START'] = '';
+        $arrayNewCodingDetail['NewCoding'][$i]['END'] = '';
+        $arrayNewCodingDetail['NewCoding'][$i]['REAL_DURATION'] = 0;
+        $arrayNewCodingDetail['NewCoding'][$i]['PERFORMANCE'] = 0;
+        $arrayNewCodingDetail['NewCoding'][$i]['NOTE'] = $newcoding_detail_data[$i][20];
+        $arrayNewCodingDetail['NewCoding'][$i]['PAGE_NAME'] = '';
+        $arrayNewCodingDetail['NewCoding'][$i]['PAGE_NUMBER'] = $newcoding_detail_data[$i][11];
+        $arrayNewCodingDetail['NewCoding'][$i]['TYPE'] = $newcoding_detail_data[$i][4];
+        $arrayNewCodingDetail['NewCoding'][$i]['WORK_CONTENT'] = '';
+    }
+}
+
+foreach($arrayNewCodingDetail as $key => $value) {
+
+    $value = array_values($value);
+    $arrayNewCodingDetail[$key] = $value;
+} */
 
 // New Coding
 array_shift($newcoding_data);
 
 for ($i = 0; $i < count($newcoding_data) - 1; $i ++) {
     if (trim($newcoding_data[$i][9]) != '' && trim($newcoding_data[$i][11]) != '' && trim($newcoding_data[$i][12]) != '') {
-        /* if ($newcoding_data[$i][9] == '') {
-            unset($newcoding_data[$i][9]);
-            continue;
-        } else { */
             $newcoding_data[$i][5] = str_replace(',', '.', $newcoding_data[$i][5]);
             $newcoding_data[$i][6] = str_replace(',', '.', $newcoding_data[$i][6]);
             $arrayNewCoding['NewCoding'][$i]['PROJECT_NO'] = $newcoding_data[$i][1];
@@ -259,9 +360,25 @@ for ($i = 0; $i < count($newcoding_data) - 1; $i ++) {
             $arrayNewCoding['NewCoding'][$i]['PAGE_NUMBER'] = $newcoding_data[$i][4];
             $arrayNewCoding['NewCoding'][$i]['TYPE'] = $newcoding_data[$i][3];
             $arrayNewCoding['NewCoding'][$i]['WORK_CONTENT'] = $newcoding_data[$i][7];
-        /* } */
+            
+            //echo ' <strong>'.$newcoding_data[$i][9].'</strong> ';
+            /* foreach($arrayNewtonDetail['Newton'] as $a => $b) {
+                echo $arrayNewCodingDetail['NewCoding'][$a]['PROJECT_NAME'];
+                echo '-------------------<strong>'.$newcoding_data[$i][2].'</strong><br /> ';
+                if($arrayNewCodingDetail['NewCoding'][$a]['PROJECT_NAME'] == $newcoding_data[$i][2]) {
+                    echo '<h1>Yes</h1>';
+                }
+                if($arrayNewCodingDetail['NewCoding'][$a]['PROJECT_NO'] == $newcoding_data[$i][1] && $arrayNewCodingDetail['NewCoding'][$a]['PROJECT_NAME'] == $newcoding_data[$i][2] && $arrayNewCodingDetail['NewCoding'][$a]['TYPE'] == $newcoding_data[$i][3] && $arrayNewCodingDetail['NewCoding'][$a]['USER'] == $newcoding_data[$i][9]) {
+                    $arrayNewCoding['NewCoding'][$i]['ORDER_DATE']            = $b['ORDER_DATE'];
+                    $arrayNewCoding['NewCoding'][$i]['DELIVERY_DATE']         = $b['DELIVERY_DATE'];
+                    $arrayNewCoding['NewCoding'][$i]['DELIVERY_BEFORE']       = $b['DELIVERY_BEFORE'];
+                    break;
+                }
+            } */
     }
 }
+
+
 
 foreach($arrayNewCoding as $key => $value) {
     

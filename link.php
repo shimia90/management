@@ -12,7 +12,7 @@ $database       =   new Database($params);
 $currentMonth   =   date('m');
 
 /* New Custom */
-for($i = 1; $i <=8; $i ++) {
+for($i = 1; $i <=11; $i ++) {
     $queryProject = "SELECT * FROM `source_link` WHERE `project_link` = ".$i." ORDER BY `link_month` DESC LIMIT 1";
     $arraySource[] = $database->listRecord($database->query($queryProject));
 }
@@ -27,11 +27,7 @@ if(empty($arraySource)) {
 } */
 
 $today          = date("d/m/Y");
-/* echo '<pre>';
-print_r($arraySource);
-echo '</pre>';
-echo count($arraySource);
-die(); */
+
 for($i = 0; $i < count($arraySource); $i++) {
     switch ($arraySource[$i][0]['project_link']) {
         case 1:
@@ -58,15 +54,15 @@ for($i = 0; $i < count($arraySource); $i++) {
         case 8:
             $working_url                =   $arraySource[$i][0]['link'];
             break;
-       /*  case 9:
+        case 9:
             $newton_detail_url          =   $arraySource[$i][0]['link'];
             break;
         case 10:
-            $fc_detail_url              =   $arraySource[$i][0]['link'];
+            $newcoding_detail_url       =   $arraySource[$i][0]['link'];
             break;
         case 11:
-            $newcoding_detail_url       =   $arraySource[$i][0]['link'];
-            break; */
+            $fc_detail_url              =   $arraySource[$i][0]['link'];
+            break;
     } 
 }
 
@@ -98,13 +94,13 @@ $newcoding_data             =       getData($newcoding_url);
 $working_data               =       getData($working_url);
 
 // Newton Detail
-//$newton_detail_data         =       getData($newton_detail_url);
+$newton_detail_data         =       getData($newton_detail_url);
 
 // FC Detail
-//$fc_detail_data             =       getData($fc_detail_url);
+$fc_detail_data             =       getData($fc_detail_url);
 
 // New Coding Detail
-//$newcoding_detail_data      =       getData($newcoding_detail_url);
+$newcoding_detail_data      =       getData($newcoding_detail_url);
 
 // Get Member
 $member_data        =       getData('./csv/member.csv');
@@ -118,3 +114,8 @@ foreach($member_data as $key => $value) {
     $memberArray[$key][]  =       trim($value[0]);
     $memberArray[$key][]  =       trim($value[3]);
 }
+
+/* echo '<pre>';
+print_r($newton_detail_data);
+echo '</pre>';
+die(); */
