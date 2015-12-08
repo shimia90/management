@@ -282,7 +282,8 @@ if(!empty($arrayNewCoding)) {
             $arrayNewCodingToSelect['work_date']   =   $arrayNewCoding['NewCoding'][$key]['work_date'];
             $arrayNewCodingToSelect['user']   =   $arrayNewCoding['NewCoding'][$key]['user'];
             $arrayNewCodingToSelect['work_content']   =   $arrayNewCoding['NewCoding'][$key]['work_content'];
-            if($databaseWork->checkExistRow($arrayNewCoding['NewCoding'][$key]) == true) {
+            //if($databaseWork->checkExistRow($arrayNewCoding['NewCoding'][$key]) == true) {
+            if($databaseWork->checkExistRow($arrayNewCodingToSelect) == true) {
                 $arrayIdCoding = $databaseWork->returnID($arrayNewCodingToSelect);
                 if(!empty($arrayIdCoding)) {
                     $databaseWork->update($arrayNewCoding['NewCoding'][$key], array(array('id', $arrayIdCoding[0]['id'], null)));

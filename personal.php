@@ -1,36 +1,15 @@
 <?php
-require_once 'get_worktime.php';
+require_once 'function.php';
+require_once 'class/connect_user.php';
+require_once 'class/connect_worktime.php';
+require_once 'class/connect_project.php';
+require_once 'class/connect_work.php';
 $today          = date("d/m/Y");
 if(isset($_GET['updateSQL']) && $_GET['updateSQL'] == 'yes') {
     require_once 'import_work.php';
+    require_once 'import_worktime.php';
 }
 require_once 'class/Database.class.php';
-$arrayConnect = array('server' 	=> 'localhost','username'	=> 'root',);
-$paramsUser		= array(
-    'server' 	=> 'localhost',
-    'username'	=> 'root',
-    'password'	=> '',
-    'database'	=> 'management',
-    'table'		=> 'user',
-);
-$paramsProject		= array(
-    'server' 	=> 'localhost',
-    'username'	=> 'root',
-    'password'	=> '',
-    'database'	=> 'management',
-    'table'		=> 'project_type',
-);
-$paramsWork		= array(
-    'server' 	=> 'localhost',
-    'username'	=> 'root',
-    'password'	=> '',
-    'database'	=> 'management',
-    'table'		=> 'work',
-);
-$databaseUser       =   new Database($paramsUser);
-$databaseProject    =   new Database($paramsProject);
-$databaseWork       =   new Database($paramsWork);
-$arrayUser          =   $databaseUser->listRecord($databaseUser->query('SELECT * FROM user'));
 $arrayProject       =   $databaseProject->listRecord($databaseProject->query('SELECT * FROM project_type'));
 $datePost           =   '';
 $userPost           =   '';
@@ -162,28 +141,106 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                                         <div class="working_time">
                                                 <?php 
                                                     if(isset($_POST['user_name']) && trim($_POST['user_name']) != '' && isset($_POST['date_from']) && trim($_POST['date_from']) != '' && isset($_POST['date_to']) && trim($_POST['date_to']) != '') {
-                                                        if($dateFrom == $dateFrom) {
-                                                            foreach($finalArray as $key => $value) {
-                                                                if($key == $dateTo) :
-                                                                    foreach($value as $k => $v) :
-                                                                        foreach($arrayUser as $a => $b) :
-                                                                            if($b['nickname'] == $k) {
-                                                                                $k = $b['id'];
-                                                                            }
-                                                                        endforeach;
-                                                                        if($k == $_POST['user_name']) {
-                                                                            echo '<p>Being late/ Leave early: <strong>'.($v['Delay']+$v['Unpaid']+$v['Special Paid']+$v['Paid']+$v['Others']).'</strong></p>';
-                                                                            echo '<p>Working dur: <strong>'.((8 + $v['Overtime']) - ($v['Delay'] + $v['Unpaid'] + $v['Special Paid'] + $v['Paid'] + $v['Others'])).'</strong></p>';
-                                                                            echo '<p>Overtime: <strong>'.$v['Overtime'].'</strong></p>';
-                                                                            
-                                                                        }
-                                                                    endforeach;
-                                                                endif;
+                                                        if($dateFrom != $dateTo) {
+                                                            $queryWt = "SELECT * FROM `work_time` WHERE STR_TO_DATE( `work_date`, '%d/%m/%Y' ) BETWEEN STR_TO_DATE( '{$dateFrom}', '%d/%m/%Y' ) AND STR_TO_DATE( '{$dateTo}', '%d/%m/%Y' ) AND `user` = '{$_POST['user_name']}' ORDER BY `user`, `work_date` ASC";
+                                                            $arrayGetWorktime = $dbWorktime->listRecord($dbWorktime->query($queryWt));
+                                                            // Being Late / Leave Early
+                                                            echo '<ul class="inline">';
+                                                            echo '<li>Being late/ Leave early: </li>';
+                                                            foreach($arrayGetWorktime as $key => $value) {
+                                                                echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.($value['delay'] + $value['unpaid'] + $value['paid'] + $value['others']).'</strong></li>';
                                                             }
-                                                        } else {
+                                                            echo '</ul>';
                                                             
+                                                            // Working Day Hour
+                                                            $workingDayTotal = 0;
+                                                            echo '<ul class="inline">';
+                                                                echo '<li>Working day hour: </li>';
+                                                                foreach($arrayGetWorktime as $key => $value) {
+                                                                    echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.$value['work_time'].'</strong></li>';
+                                                                    $workingDayTotal += $value['work_time'];
+                                                                }
+                                                            echo '</ul>';
+                                                            
+                                                            // Overtime
+                                                            echo '<ul class="inline">';
+                                                            echo '<li>Overtime: </li>';
+                                                            foreach($arrayGetWorktime as $key => $value) {
+                                                                echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.$value['overtime'].'</strong></li>';
+                                                            }
+                                                            echo '</ul>';
+                                                            
+                                                            //Performance
+                                                            $dayRealDur = 0;
+                                                            foreach($arrayWork as $key => $value) {
+                                                                $dayRealDur += $value['real_duration'];
+                                                            }
+                                                            
+                                                            echo '<ul class="inline">';
+                                                            echo '<li>Working real hour: </li>';
+                                                            echo '<li class="label label-warning">'.$dayRealDur.'</li>';
+                                                            echo '</ul>';
+
+                                                            echo '<ul class="inline">';
+                                                                echo '<li>Performance: </li>';
+                                                                echo '<li class="label label-info">'.round((($dayRealDur / $workingDayTotal) * 100), 2).'%</li>';
+                                                            echo '</ul>';
+                                                            
+                                                            //Create Alert
+                                                            if($dayRealDur > $workingDayTotal) {
+                                                                echo '<div class="alert alert-error">The real time duration didnt input correctly, please check !!!</div>';
+                                                            }
+                                                            
+                                                        } else {
+                                                            $queryWt = "SELECT * FROM `work_time` WHERE STR_TO_DATE( `work_date`, '%d/%m/%Y' ) = STR_TO_DATE( '{$dateTo}', '%d/%m/%Y' ) AND `user` = {$_POST['user_name']} ORDER BY `work_date` ASC";
+                                                            $arrayGetWorktime = $dbWorktime->listRecord($dbWorktime->query($queryWt));
+                                                            // Being Late / Leave Early
+                                                            echo '<ul class="inline">';
+                                                            echo '<li>Being late/ Leave early: </li>';
+                                                            foreach($arrayGetWorktime as $key => $value) {
+                                                                echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.($value['delay'] + $value['unpaid'] + $value['paid'] + $value['others']).'</strong></li>';
+                                                            }
+                                                            echo '</ul>';
+                                                            
+                                                            // Working Day Hour
+                                                            $workingDayTotal = 0;
+                                                            echo '<ul class="inline">';
+                                                            echo '<li>Working day hour: </li>';
+                                                            foreach($arrayGetWorktime as $key => $value) {
+                                                                echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.$value['work_time'].'</strong></li>';
+                                                                $workingDayTotal += $value['work_time'];
+                                                            }
+                                                            echo '</ul>';
+                                                            
+                                                            // Overtime
+                                                            echo '<ul class="inline">';
+                                                            echo '<li>Overtime: </li>';
+                                                            foreach($arrayGetWorktime as $key => $value) {
+                                                                echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.$value['overtime'].'</strong></li>';
+                                                            }
+                                                            echo '</ul>';
+                                                            
+                                                            //Performance
+                                                            $dayRealDur = 0;
+                                                            foreach($arrayWork as $key => $value) {
+                                                                $dayRealDur += $value['real_duration'];
+                                                            }
+                                                            
+                                                            echo '<ul class="inline">';
+                                                            echo '<li>Working real hour: </li>';
+                                                            echo '<li class="label label-warning">'.$dayRealDur.'</li>';
+                                                            echo '</ul>';
+                                                            
+                                                            echo '<ul class="inline">';
+                                                            echo '<li>Performance: </li>';
+                                                            echo '<li class="label label-info">'.round((($dayRealDur / $workingDayTotal) * 100), 2).'%</li>';
+                                                            echo '</ul>';
+                                                            
+                                                            //Create Alert
+                                                            if($dayRealDur > $workingDayTotal) {
+                                                                echo '<div class="alert alert-error">The real time duration didnt input correctly, please check !!!</div>';
+                                                            }
                                                         }
-                                                        
                                                     }
                                                 ?>
                                         </div>
@@ -236,7 +293,7 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
 												<th class="text-center">Real Duration </th>
 												<th class="text-center">Start</th>
 												<th class="text-center">End</th>
-												<th class="text-center">Performance</th>
+												<th class="text-center">Speed</th>
 												<th class="text-center">Note</th>
 											</tr>
 										</thead>
@@ -256,13 +313,13 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
 										                  endforeach;
 										                  $tmpUser = $value['user'];
 										                  if($value['project_type'] == 'Other' || $value['project_type'] == 'Research') {
-										                      $totalStandard  += 0;
-										                      $totalReal      += 0;
+										                      //$totalStandard  += 0;
+										                      //$totalReal      += 0;
 										                  } else {
-										                      $totalStandard  += $value['standard_duration'];
-										                      $totalReal      +=      $value['real_duration'];
+										                      
 										                  }
-
+										                  $totalStandard  += $value['standard_duration'];
+										                  $totalReal      +=      $value['real_duration'];
 										                  $totalPerformance += $value['performance'];
 										  ?>
 										  
@@ -308,7 +365,7 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
            									           <td class="text-center"><span class="label <?php echo $statusClass; ?>"><?php echo $totalReal; ?></span></td>
            									           <td></td>
            									           <td class="text-center"><b>Average</b></td>
-           									           <td class="text-center"><span class="label <?php echo $statusClass; ?>"><?php echo round(($totalStandard / $totalReal * 100), 2); ?>%</span><td>
+           									           <td class="text-center"><span class="label <?php echo $statusClass; ?>"><?php echo round(($totalStandard / $totalReal * 100), 2); ?>%</span></td>
            									           <td colspan="2"></td>
            									       </tr>
            								   <?php endif;
@@ -371,22 +428,6 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                 	    }
                 	});
 
-                	/* $('#show_all_search').dateRangePicker({
-                        format: 'DD/MM/YYYY',
-                        separator : ' to ',
-                    	getValue: function()
-                    	{
-                    		if ($('#date_all_from').val() && $('#date_all_to').val() )
-                    			return $('#date_all_from').val() + ' to ' + $('#date_all_to').val();
-                    		else
-                    			return '';
-                    	},
-                    	setValue: function(s,s1,s2)
-                    	{
-                    		$('#date_all_from').val(s1);
-                    		$('#date_all_to').val(s2);
-                    	}
-                    }); */
                 }
             });
 
@@ -397,9 +438,7 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
             	}
             });
 
-            /* $('#datepicker_from').dateRangePicker({
-                format: 'DD/MM/YYYY'
-            }); */
+            $('.work-time-tooltip').tooltip();
 
             $('#two-inputs').dateRangePicker({
                 format: 'DD/MM/YYYY',
