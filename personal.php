@@ -160,7 +160,11 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                                                                     echo '<ul class="inline">';
                                                                     echo '<li>Being late/ Leave early: </li>';
                                                                     foreach($arrayGetWorktime as $key => $value) {
-                                                                        echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.($value['delay'] + $value['unpaid'] + $value['paid'] + $value['others']).'</strong></li>';
+                                                                        if(isWeekend($value['work_date']) == true) {
+                                                                            continue;
+                                                                        } else {
+                                                                            echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.($value['delay'] + $value['unpaid'] + $value['paid'] + $value['others']).'</strong></li>';
+                                                                        }
                                                                     }
                                                                     echo '</ul>';
                                                                 echo '</li>';
@@ -171,8 +175,13 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                                                                     echo '<ul class="inline">';
                                                                         echo '<li>Working day hour: </li>';
                                                                         foreach($arrayGetWorktime as $key => $value) {
-                                                                            echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.$value['work_time'].'</strong></li>';
-                                                                            $workingDayTotal += $value['work_time'];
+                                                                            if(isWeekend($value['work_date']) == true) {
+                                                                                continue;
+                                                                                $workingDayTotal += 0;
+                                                                            } else {
+                                                                                echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.$value['work_time'].'</strong></li>';
+                                                                                $workingDayTotal += $value['work_time'];
+                                                                            }
                                                                         }
                                                                     echo '</ul>';
                                                                 echo '</li>';
@@ -182,7 +191,12 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                                                                     echo '<ul class="inline">';
                                                                     echo '<li>Overtime: </li>';
                                                                     foreach($arrayGetWorktime as $key => $value) {
-                                                                        echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.$value['overtime'].'</strong></li>';
+                                                                        if(isWeekend($value['work_date']) == true) {
+                                                                            continue;
+                                                                        } else {
+                                                                            echo '<li class="work-time-tooltip label label-important" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.$value['overtime'].'</strong></li> ';
+                                                                        }
+                                                                        
                                                                     }
                                                                     echo '</ul>';
                                                                 echo '</li>';
@@ -191,7 +205,12 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                                                                     //Performance
                                                                     $dayRealDur = 0;
                                                                     foreach($arrayWork as $key => $value) {
-                                                                        $dayRealDur += $value['real_duration'];
+                                                                        if(isWeekend($value['work_date']) == true) {
+                                                                            continue;
+                                                                            $dayRealDur += 0;
+                                                                        } else {
+                                                                            $dayRealDur += $value['real_duration'];
+                                                                        }
                                                                     }
                                                                     
                                                                     echo '<ul class="inline">';
@@ -222,7 +241,11 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                                                                     echo '<ul class="inline">';
                                                                     echo '<li>Being late/ Leave early: </li>';
                                                                     foreach($arrayGetWorktime as $key => $value) {
-                                                                        echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.($value['delay'] + $value['unpaid'] + $value['paid'] + $value['others']).'</strong></li>';
+                                                                        if(isWeekend($value['work_date']) == true) { 
+                                                                            echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="Weekend"><strong>Weekend</strong></li>';
+                                                                        } else {
+                                                                            echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.($value['delay'] + $value['unpaid'] + $value['paid'] + $value['others']).'</strong></li>';
+                                                                        }
                                                                     }
                                                                     echo '</ul>';
                                                                 echo '</li>';
@@ -233,8 +256,13 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                                                                     echo '<ul class="inline">';
                                                                         echo '<li>Working day hour: </li>';
                                                                         foreach($arrayGetWorktime as $key => $value) {
-                                                                            echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.$value['work_time'].'</strong></li>';
-                                                                            $workingDayTotal += $value['work_time'];
+                                                                            if(isWeekend($value['work_date']) == true) {
+                                                                                echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="Weekend"><strong>Weekend</strong></li>';
+                                                                                $workingDayTotal = 1;
+                                                                            } else {
+                                                                                echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.$value['work_time'].'</strong></li>';
+                                                                                $workingDayTotal += $value['work_time'];
+                                                                            }
                                                                         }
                                                                     echo '</ul>';
                                                                 echo '</li>';
@@ -244,7 +272,12 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                                                                     echo '<ul class="inline">';
                                                                     echo '<li>Overtime: </li>';
                                                                     foreach($arrayGetWorktime as $key => $value) {
-                                                                        echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.$value['overtime'].'</strong></li>';
+                                                                        if(isWeekend($value['work_date']) == true) {
+                                                                            echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="Weekend"><strong>Weekend</strong></li>';
+                                                                        } else {
+                                                                            echo '<li class="work-time-tooltip label label-important" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.$value['overtime'].'</strong></li> ';
+                                                                        }
+                                                                        
                                                                     }
                                                                     echo '</ul>';
                                                                 echo '</li>';
@@ -253,7 +286,12 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                                                                     //Performance
                                                                     $dayRealDur = 0;
                                                                     foreach($arrayWork as $key => $value) {
-                                                                        $dayRealDur += $value['real_duration'];
+                                                                        if(isWeekend($value['work_date']) == true) {
+                                                                            echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="Weekend"><strong>Weekend</strong></li>';
+                                                                            $dayRealDur += 0;
+                                                                        } else {
+                                                                            $dayRealDur += $value['real_duration'];
+                                                                        }
                                                                     }
                                                                     
                                                                     echo '<ul class="inline">';
@@ -474,7 +512,22 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
 
             $('.work-time-tooltip').tooltip();
 
-            
+            /*$('#two-inputs').dateRangePicker({
+                format: 'DD/MM/YYYY',
+                separator : ' to ',
+            	getValue: function()
+            	{
+            		if ($('#date-range200').val() && $('#date-range201').val() )
+            			return $('#date-range200').val() + ' to ' + $('#date-range201').val();
+            		else
+            			return '';
+            	},
+            	setValue: function(s,s1,s2)
+            	{
+            		$('#date-range200').val(s1);
+            		$('#date-range201').val(s2);
+            	}
+            });*/
 
             $("#date-range201").datepicker({
         		dateFormat:"dd/mm/yy",

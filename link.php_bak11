@@ -27,7 +27,8 @@ if(empty($arraySource)) {
 } */
 
 $today          = date("d/m/Y");
-for($i = 0; $i < count($arraySource); $i++) {
+
+/* for($i = 0; $i < count($arraySource); $i++) {
     switch ($arraySource[$i][0]['project_link']) {
         case 1:
             $maintenance_url            =   $arraySource[$i][0]['link'];
@@ -63,44 +64,44 @@ for($i = 0; $i < count($arraySource); $i++) {
             $fc_detail_url              =   $arraySource[$i][0]['link'];
             break;
     } 
-}
+} */
 
 $messageUrl     = '';
 
 // Maitenance Data
 
-$maintenance_data           =       getData($maintenance_url); 
+$maintenance_data           =       getData('./csv/maintenance11.csv'); 
 
 // Newton Data
-$newton_data                =       getData($newton_url);
+$newton_data                =       getData('./csv/newton11.csv');
 
 // Domestic Data
-$domestic_data              =       getData($domestic_url);
+$domestic_data              =       getData('./csv/domestic11.csv');
 
 // Domestic Data
-$fc_data                    =       getData($fc_url);
+$fc_data                    =       getData('./csv/fc11.csv');
 
 // Others
-$other_data                 =       getData($other_url);
+$other_data                 =       getData('./csv/others11.csv');
 
 // Research
-$research_data              =       getData($research_url);
+$research_data              =       getData('./csv/research11.csv');
 
 // New Coding
-$newcoding_data             =       getData($newcoding_url);
+$newcoding_data             =       getData('./csv/newcoding11.csv');
 
 // Working
-$working_data               =       getData($working_url);
+$working_data               =       getData('./csv/working11.csv');
 
-// Newton Detail
-$newton_detail_data         =       getData($newton_detail_url);
+/* // Newton Detail
+$newton_detail_data         =       getData('./csv/maintenance11.csv');
 
 // FC Detail
-$fc_detail_data             =       getData($fc_detail_url);
+$fc_detail_data             =       getData('./csv/maintenance11.csv');
 
 // New Coding Detail
-$newcoding_detail_data      =       getData($newcoding_detail_url);
-
+$newcoding_detail_data      =       getData('./csv/maintenance11.csv');
+ */
 // Get Member
 $member_data        =       getData('./csv/member.csv');
 $memberArray        =       array();

@@ -47,3 +47,18 @@ function emptyReturn($str) {
     }
     return $str;
 }
+
+function isWeekend($date) {
+    //$inputDate = DateTime::createFromFormat("d-m-Y", $date, new DateTimeZone("Europe/Amsterdam"));
+    $inputDate = DateTime::createFromFormat('d/m/Y', $date, new DateTimeZone("Asia/Ho_Chi_Minh"));
+    return $inputDate->format('N') >= 6;
+}
+
+function checkWeekend($date) {
+    if(date('w', strtotime($date)) == 6 || date('w', strtotime($date)) == 0) {
+        return true;
+    } else {
+        return false;
+    }
+    return false;
+}

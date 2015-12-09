@@ -46,7 +46,7 @@ for ($i = 0; $i < count($maintenance_data) - 1; $i ++) {
 }
 
 //Newton Detail
-array_shift($newton_detail_data);
+/* array_shift($newton_detail_data);
 
 
 for ($i = 0; $i < count($newton_detail_data) - 1; $i ++) {
@@ -78,7 +78,7 @@ for ($i = 0; $i < count($newton_detail_data) - 1; $i ++) {
             $arrayNewtonDetail['Newton'][$i]['WORK_CONTENT'] = '';
         }
     }
-}
+} */
 
 // Newton
 array_shift($newton_data);
@@ -96,14 +96,14 @@ for ($i = 0; $i < count($newton_data) - 1; $i ++) {
             $arrayNewton['Newton'][$i]['ORDER_DATE'] = '';
             $arrayNewton['Newton'][$i]['DELIVERY_DATE'] = '';
             $arrayNewton['Newton'][$i]['DELIVERY_BEFORE'] = '';
-            foreach($arrayNewtonDetail['Newton'] as $a => $b) {
+            /* foreach($arrayNewtonDetail['Newton'] as $a => $b) {
                 
                 if($arrayNewtonDetail['Newton'][$a]['PROJECT_NO'] == $newton_data[$i][1] && $arrayNewtonDetail['Newton'][$a]['PROJECT_NAME'] == $newton_data[$i][2] && $arrayNewtonDetail['Newton'][$a]['USER'] == $newton_data[$i][7] && $arrayNewtonDetail['Newton'][$a]['WORK_DATE'] == $newton_data[$i][0]) {
                     $arrayNewton['Newton'][$i]['ORDER_DATE']            = $b['ORDER_DATE'];
                     $arrayNewton['Newton'][$i]['DELIVERY_DATE']         = $b['DELIVERY_DATE'];
                     $arrayNewton['Newton'][$i]['DELIVERY_BEFORE']       = $b['DELIVERY_BEFORE'];
                 }
-            }
+            } */
                
             
             $arrayNewton['Newton'][$i]['WORK_DATE'] = $newton_data[$i][0];
@@ -162,7 +162,7 @@ for ($i = 0; $i < count($domestic_data) - 1; $i ++) {
 
 // FC Detail
 
-array_shift($fc_detail_data);
+/* array_shift($fc_detail_data);
 
 for ($i = 0; $i < count($fc_detail_data) - 1; $i ++) {
     if (trim($fc_detail_data[$i][6]) != '' && trim($fc_detail_data[$i][7]) != '' && trim($fc_detail_data[$i][9]) != '') {
@@ -192,6 +192,10 @@ for ($i = 0; $i < count($fc_detail_data) - 1; $i ++) {
         }
     }
 }
+echo '<pre>';
+print_r($arrayFcDetail);
+echo '</pre>';
+die(); */
 
 // FC Data
 
@@ -208,20 +212,12 @@ for ($i = 0; $i < count($fc_data) - 1; $i ++) {
             $arrayFc['FC'][$i]['PROJECT_NO'] = $fc_data[$i][1];
             $arrayFc['FC'][$i]['PROJECT_TYPE'] = 'FC';
             $arrayFc['FC'][$i]['ORDER_DATE'] = '';
-            $arrayFc['FC'][$i]['DELIVERY_DATE'] = '';
-            $arrayFc['FC'][$i]['DELIVERY_BEFORE'] = '';
-            foreach($arrayFcDetail['FC'] as $a => $b) {
-            
-                if($arrayFcDetail['FC'][$a]['PROJECT_NO'] == $fc_data[$i][1] && $arrayFcDetail['FC'][$a]['PROJECT_NAME'] == $fc_data[$i][2]) {
-                    $arrayFc['FC'][$i]['ORDER_DATE']            = $b['ORDER_DATE'];
-                    $arrayFc['FC'][$i]['DELIVERY_DATE']         = $b['DELIVERY_DATE'];
-                    $arrayFc['FC'][$i]['DELIVERY_BEFORE']       = $b['DELIVERY_BEFORE'];
-                }
-            }
             $arrayFc['FC'][$i]['WORK_DATE'] = $fc_data[$i][0];
             $arrayFc['FC'][$i]['PROJECT_NAME'] = $fc_data[$i][2];
             $arrayFc['FC'][$i]['STATUS'] = $fc_data[$i][9];
             $arrayFc['FC'][$i]['STANDARD_DURATION'] = $fc_data[$i][5];
+            $arrayFc['FC'][$i]['DELIVERY_DATE'] = '';
+            $arrayFc['FC'][$i]['DELIVERY_BEFORE'] = '';
             $arrayFc['FC'][$i]['USER'] = $fc_data[$i][8];
             $arrayFc['FC'][$i]['START'] = $fc_data[$i][10];
             $arrayFc['FC'][$i]['END'] = $fc_data[$i][11];
@@ -235,6 +231,11 @@ for ($i = 0; $i < count($fc_data) - 1; $i ++) {
         }
     }
 }
+
+/* echo '<pre>';
+print_r($arrayFc);
+echo '</pre>';
+die(); */
 
 // Other Data
 
@@ -308,10 +309,10 @@ for ($i = 0; $i < count($research_data) - 1; $i ++) {
     }
 }
 // New Coding Detail
-array_shift($newcoding_detail_data);
+/* array_shift($newcoding_detail_data);
 
 for ($i = 0; $i < count($newcoding_detail_data) - 1; $i ++) {
-    if (trim($newcoding_detail_data[$i][7]) != '' && trim($newcoding_detail_data[$i][7]) != '-' && trim($newcoding_detail_data[$i][9]) != '') {
+    if (trim($newcoding_detail_data[$i][7]) != '' && trim($newcoding_detail_data[$i][7]) != '-' && trim($newcoding_detail_data[$i][8]) != '' && trim($newcoding_detail_data[$i][9]) != '') {
         $arrayNewCodingDetail['NewCoding'][$i]['PROJECT_NO'] = $newcoding_detail_data[$i][3];
         $arrayNewCodingDetail['NewCoding'][$i]['PROJECT_TYPE'] = 'New Coding';
         $arrayNewCodingDetail['NewCoding'][$i]['ORDER_DATE'] = $newcoding_detail_data[$i][9];
@@ -338,10 +339,9 @@ foreach($arrayNewCodingDetail as $key => $value) {
 
     $value = array_values($value);
     $arrayNewCodingDetail[$key] = $value;
-}
+} */
 
 // New Coding
-
 array_shift($newcoding_data);
 
 for ($i = 0; $i < count($newcoding_data) - 1; $i ++) {
@@ -351,22 +351,12 @@ for ($i = 0; $i < count($newcoding_data) - 1; $i ++) {
             $arrayNewCoding['NewCoding'][$i]['PROJECT_NO'] = $newcoding_data[$i][1];
             $arrayNewCoding['NewCoding'][$i]['PROJECT_TYPE'] = 'New Coding';
             $arrayNewCoding['NewCoding'][$i]['ORDER_DATE'] = '';
-            $arrayNewCoding['NewCoding'][$i]['DELIVERY_DATE'] = '';
-            $arrayNewCoding['NewCoding'][$i]['DELIVERY_BEFORE'] = '';
-            if($newcoding_data[$i][3] == 'Option') {
-                $newcoding_data[$i][3] = 'New';
-            }
-            foreach($arrayNewCodingDetail['NewCoding'] as $a => $b) {
-                if(trim($arrayNewCodingDetail['NewCoding'][$a]['PROJECT_NO']) == trim($newcoding_data[$i][1]) && trim($arrayNewCodingDetail['NewCoding'][$a]['PROJECT_NAME']) == trim($newcoding_data[$i][2]) && trim($arrayNewCodingDetail['NewCoding'][$a]['TYPE']) == trim($newcoding_data[$i][3])) {
-                    $arrayNewCoding['NewCoding'][$i]['ORDER_DATE']            = $b['ORDER_DATE'];
-                    $arrayNewCoding['NewCoding'][$i]['DELIVERY_DATE']         = $b['DELIVERY_DATE'];
-                    $arrayNewCoding['NewCoding'][$i]['DELIVERY_BEFORE']       = $b['DELIVERY_BEFORE'];
-                }
-            }
             $arrayNewCoding['NewCoding'][$i]['WORK_DATE'] = $newcoding_data[$i][0];
             $arrayNewCoding['NewCoding'][$i]['PROJECT_NAME'] = $newcoding_data[$i][2];
             $arrayNewCoding['NewCoding'][$i]['STATUS'] = $newcoding_data[$i][10];
             $arrayNewCoding['NewCoding'][$i]['STANDARD_DURATION'] = $newcoding_data[$i][5];
+            $arrayNewCoding['NewCoding'][$i]['DELIVERY_DATE'] = '';
+            $arrayNewCoding['NewCoding'][$i]['DELIVERY_BEFORE'] = '';
             $arrayNewCoding['NewCoding'][$i]['USER'] = $newcoding_data[$i][9];
             $arrayNewCoding['NewCoding'][$i]['START'] = $newcoding_data[$i][11];
             $arrayNewCoding['NewCoding'][$i]['END'] = $newcoding_data[$i][12];
@@ -394,6 +384,8 @@ for ($i = 0; $i < count($newcoding_data) - 1; $i ++) {
             } */
     }
 }
+
+
 
 foreach($arrayNewCoding as $key => $value) {
     
