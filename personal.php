@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once 'function.php';
 require_once 'class/connect_user.php';
 require_once 'class/connect_worktime.php';
@@ -21,6 +22,10 @@ $dateAllTo          =   $today;
 
 
 if(isset($_POST['date_from']) && isset($_POST['user_name']) && isset($_POST['date_to']) && trim($_POST['date_from']) != '' && trim($_POST['date_to']) != '' && trim($_POST['user_name']) != '') {
+    $_SESSION['user_name']      =   $_POST['user_name'];
+    $_SESSION['date_from']      =   $_POST['date_from'];
+    $_SESSION['date_to']        =   $_POST['date_to'];
+    
     $dateFrom       =   trim($_POST['date_from']);
     $dateTo         =   trim($_POST['date_to']);
     $userPost       =   $_POST['user_name'];
@@ -107,7 +112,12 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                                                     <select id="user_select" size="1" name="user_name" aria-controls="example">
                                                         <option value="">Select Member</option>
                                                         <?php foreach($arrayUser as $key => $value) :
-                                                            $selectedUser = ($value['id'] == $_POST['user_name']) ? 'selected="selected"' : '';
+                                                            if(isset($_SESSION['user_name']) && trim($_SESSION['user_name']) != '') {
+                                                                $selectedUser = ($value['id'] == $_SESSION['user_name']) ? 'selected="selected"' : '';
+                                                            } else {
+                                                                $selectedUser = ($value['id'] == $_POST['user_name']) ? 'selected="selected"' : '';
+                                                            }
+                                                            
                                                         ?>
                                                         <option value="<?php echo $value['id']; ?>" <?php echo $selectedUser; ?>><?php echo $value['fullname'];?></option>
                                                         <?php endforeach; ?>
@@ -115,7 +125,7 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                                                 </label>
                                                 <label>
                                                     <!-- Date: <input type="text" id="datepicker_from" name="date_search" value="<?php //echo $datePost; ?>" placeholder="Date Range" />  -->
-                                                    From <span id="two-inputs"><input id="date-range200" size="20" name="date_from" value="<?php echo $dateFrom; ?>"> To <input id="date-range201" size="20" name="date_to" value="<?php echo $dateTo; ?>"></span>
+                                                    From <span id="two-inputs"><input id="date-range200" size="20" name="date_from" value="<?php if(isset($_SESSION['date_from']) && trim($_SESSION['date_from']) != '') { echo $_SESSION['date_from']; } else { echo $dateFrom; } ?>"> To <input id="date-range201" size="20" name="date_to" value="<?php if(isset($_SESSION['date_to']) && trim($_SESSION['date_to']) != '') { echo $_SESSION['date_to']; } else { echo $dateTo; } ?>"></span>
                                                 </label>
                                                 <input type="hidden" name="type" value="single" />
                                                 <input type="hidden" name="page_submit" value="record" />
@@ -146,45 +156,57 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                                                             $arrayGetWorktime = $dbWorktime->listRecord($dbWorktime->query($queryWt));
                                                             // Being Late / Leave Early
                                                             echo '<ul class="inline">';
-                                                            echo '<li>Being late/ Leave early: </li>';
-                                                            foreach($arrayGetWorktime as $key => $value) {
-                                                                echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.($value['delay'] + $value['unpaid'] + $value['paid'] + $value['others']).'</strong></li>';
-                                                            }
-                                                            echo '</ul>';
-                                                            
-                                                            // Working Day Hour
-                                                            $workingDayTotal = 0;
-                                                            echo '<ul class="inline">';
-                                                                echo '<li>Working day hour: </li>';
-                                                                foreach($arrayGetWorktime as $key => $value) {
-                                                                    echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.$value['work_time'].'</strong></li>';
-                                                                    $workingDayTotal += $value['work_time'];
-                                                                }
-                                                            echo '</ul>';
-                                                            
-                                                            // Overtime
-                                                            echo '<ul class="inline">';
-                                                            echo '<li>Overtime: </li>';
-                                                            foreach($arrayGetWorktime as $key => $value) {
-                                                                echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.$value['overtime'].'</strong></li>';
-                                                            }
-                                                            echo '</ul>';
-                                                            
-                                                            //Performance
-                                                            $dayRealDur = 0;
-                                                            foreach($arrayWork as $key => $value) {
-                                                                $dayRealDur += $value['real_duration'];
-                                                            }
-                                                            
-                                                            echo '<ul class="inline">';
-                                                            echo '<li>Working real hour: </li>';
-                                                            echo '<li class="label label-warning">'.$dayRealDur.'</li>';
-                                                            echo '</ul>';
-
-                                                            echo '<ul class="inline">';
-                                                                echo '<li>Performance: </li>';
-                                                                echo '<li class="label label-info">'.round((($dayRealDur / $workingDayTotal) * 100), 2).'%</li>';
-                                                            echo '</ul>';
+                                                                echo '<li>';
+                                                                    echo '<ul class="inline">';
+                                                                    echo '<li>Being late/ Leave early: </li>';
+                                                                    foreach($arrayGetWorktime as $key => $value) {
+                                                                        echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.($value['delay'] + $value['unpaid'] + $value['paid'] + $value['others']).'</strong></li>';
+                                                                    }
+                                                                    echo '</ul>';
+                                                                echo '</li>';
+                                                                    
+                                                                echo '<li>';
+                                                                    // Working Day Hour
+                                                                    $workingDayTotal = 0;
+                                                                    echo '<ul class="inline">';
+                                                                        echo '<li>Working day hour: </li>';
+                                                                        foreach($arrayGetWorktime as $key => $value) {
+                                                                            echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.$value['work_time'].'</strong></li>';
+                                                                            $workingDayTotal += $value['work_time'];
+                                                                        }
+                                                                    echo '</ul>';
+                                                                echo '</li>';
+                                                                
+                                                                echo '<li>';
+                                                                    // Overtime
+                                                                    echo '<ul class="inline">';
+                                                                    echo '<li>Overtime: </li>';
+                                                                    foreach($arrayGetWorktime as $key => $value) {
+                                                                        echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.$value['overtime'].'</strong></li>';
+                                                                    }
+                                                                    echo '</ul>';
+                                                                echo '</li>';
+                                                                
+                                                                echo '<li>';
+                                                                    //Performance
+                                                                    $dayRealDur = 0;
+                                                                    foreach($arrayWork as $key => $value) {
+                                                                        $dayRealDur += $value['real_duration'];
+                                                                    }
+                                                                    
+                                                                    echo '<ul class="inline">';
+                                                                    echo '<li>Working real hour: </li>';
+                                                                    echo '<li class="label label-warning">'.$dayRealDur.'</li>';
+                                                                    echo '</ul>';
+                                                                echo '</li>';
+                                                                
+                                                                echo '<li>';
+                                                                    echo '<ul class="inline">';
+                                                                        echo '<li>Performance: </li>';
+                                                                        echo '<li class="label label-info">'.round((($dayRealDur / $workingDayTotal) * 100), 2).'%</li>';
+                                                                    echo '</ul>';
+                                                                echo '</li>';
+                                                             echo '</ul>';
                                                             
                                                             //Create Alert
                                                             if($dayRealDur > $workingDayTotal) {
@@ -194,47 +216,59 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                                                         } else {
                                                             $queryWt = "SELECT * FROM `work_time` WHERE STR_TO_DATE( `work_date`, '%d/%m/%Y' ) = STR_TO_DATE( '{$dateTo}', '%d/%m/%Y' ) AND `user` = {$_POST['user_name']} ORDER BY `work_date` ASC";
                                                             $arrayGetWorktime = $dbWorktime->listRecord($dbWorktime->query($queryWt));
-                                                            // Being Late / Leave Early
+                                                        // Being Late / Leave Early
                                                             echo '<ul class="inline">';
-                                                            echo '<li>Being late/ Leave early: </li>';
-                                                            foreach($arrayGetWorktime as $key => $value) {
-                                                                echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.($value['delay'] + $value['unpaid'] + $value['paid'] + $value['others']).'</strong></li>';
-                                                            }
-                                                            echo '</ul>';
-                                                            
-                                                            // Working Day Hour
-                                                            $workingDayTotal = 0;
-                                                            echo '<ul class="inline">';
-                                                            echo '<li>Working day hour: </li>';
-                                                            foreach($arrayGetWorktime as $key => $value) {
-                                                                echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.$value['work_time'].'</strong></li>';
-                                                                $workingDayTotal += $value['work_time'];
-                                                            }
-                                                            echo '</ul>';
-                                                            
-                                                            // Overtime
-                                                            echo '<ul class="inline">';
-                                                            echo '<li>Overtime: </li>';
-                                                            foreach($arrayGetWorktime as $key => $value) {
-                                                                echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.$value['overtime'].'</strong></li>';
-                                                            }
-                                                            echo '</ul>';
-                                                            
-                                                            //Performance
-                                                            $dayRealDur = 0;
-                                                            foreach($arrayWork as $key => $value) {
-                                                                $dayRealDur += $value['real_duration'];
-                                                            }
-                                                            
-                                                            echo '<ul class="inline">';
-                                                            echo '<li>Working real hour: </li>';
-                                                            echo '<li class="label label-warning">'.$dayRealDur.'</li>';
-                                                            echo '</ul>';
-                                                            
-                                                            echo '<ul class="inline">';
-                                                            echo '<li>Performance: </li>';
-                                                            echo '<li class="label label-info">'.round((($dayRealDur / $workingDayTotal) * 100), 2).'%</li>';
-                                                            echo '</ul>';
+                                                                echo '<li>';
+                                                                    echo '<ul class="inline">';
+                                                                    echo '<li>Being late/ Leave early: </li>';
+                                                                    foreach($arrayGetWorktime as $key => $value) {
+                                                                        echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.($value['delay'] + $value['unpaid'] + $value['paid'] + $value['others']).'</strong></li>';
+                                                                    }
+                                                                    echo '</ul>';
+                                                                echo '</li>';
+                                                                    
+                                                                echo '<li>';
+                                                                    // Working Day Hour
+                                                                    $workingDayTotal = 0;
+                                                                    echo '<ul class="inline">';
+                                                                        echo '<li>Working day hour: </li>';
+                                                                        foreach($arrayGetWorktime as $key => $value) {
+                                                                            echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.$value['work_time'].'</strong></li>';
+                                                                            $workingDayTotal += $value['work_time'];
+                                                                        }
+                                                                    echo '</ul>';
+                                                                echo '</li>';
+                                                                
+                                                                echo '<li>';
+                                                                    // Overtime
+                                                                    echo '<ul class="inline">';
+                                                                    echo '<li>Overtime: </li>';
+                                                                    foreach($arrayGetWorktime as $key => $value) {
+                                                                        echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.$value['overtime'].'</strong></li>';
+                                                                    }
+                                                                    echo '</ul>';
+                                                                echo '</li>';
+                                                                
+                                                                echo '<li>';
+                                                                    //Performance
+                                                                    $dayRealDur = 0;
+                                                                    foreach($arrayWork as $key => $value) {
+                                                                        $dayRealDur += $value['real_duration'];
+                                                                    }
+                                                                    
+                                                                    echo '<ul class="inline">';
+                                                                    echo '<li>Working real hour: </li>';
+                                                                    echo '<li class="label label-warning">'.$dayRealDur.'</li>';
+                                                                    echo '</ul>';
+                                                                echo '</li>';
+                                                                
+                                                                echo '<li>';
+                                                                    echo '<ul class="inline">';
+                                                                        echo '<li>Performance: </li>';
+                                                                        echo '<li class="label label-info">'.round((($dayRealDur / $workingDayTotal) * 100), 2).'%</li>';
+                                                                    echo '</ul>';
+                                                                echo '</li>';
+                                                             echo '</ul>';
                                                             
                                                             //Create Alert
                                                             if($dayRealDur > $workingDayTotal) {
@@ -440,22 +474,19 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
 
             $('.work-time-tooltip').tooltip();
 
-            $('#two-inputs').dateRangePicker({
-                format: 'DD/MM/YYYY',
-                separator : ' to ',
-            	getValue: function()
-            	{
-            		if ($('#date-range200').val() && $('#date-range201').val() )
-            			return $('#date-range200').val() + ' to ' + $('#date-range201').val();
-            		else
-            			return '';
-            	},
-            	setValue: function(s,s1,s2)
-            	{
-            		$('#date-range200').val(s1);
-            		$('#date-range201').val(s2);
-            	}
+            
+
+            $("#date-range201").datepicker({
+        		dateFormat:"dd/mm/yy",
             });
+            
+            $("#date-range200").datepicker({
+        		dateFormat:"dd/mm/yy",
+        	    onSelect: function(dateText, inst) {
+        	        var date = $(this).val();
+        	        $("#date-range201").val(date);
+        	    }
+        	});
 
         });
         
