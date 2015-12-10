@@ -79,6 +79,7 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
         <link href="assets/DT_bootstrap.css" rel="stylesheet" media="screen">
         <link href="css/jquery-ui.min.css" rel="stylesheet" media="screen">
         <link rel="stylesheet" href="css/daterangepicker.css" />
+        <link rel="stylesheet" href="css/timestack.css" />
         <!--[if lte IE 8]><script language="javascript" type="text/javascript" src="vendors/flot/excanvas.min.js"></script><![endif]-->
         <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
         <!--[if lt IE 9]>
@@ -457,11 +458,73 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                 </div>
             </div>
             
+            <?php if(!empty($arrayWork) && isset($_POST['user_name'])) :
+                $countArrayWork =       count($arrayWork);
+                echo "<div id='timeline'>";
+                echo "<ul>";
+                $key_flag = false;
+                foreach($arrayWork as $key => $value) :
+                $newDate = DateTime::createFromFormat('d/m/Y', $value['work_date'])->format('Y-m-d');
+                if($key_flag == false) { echo '<li data-start="'.$newDate.'T12:00" data-end="'.$newDate.'T13:00" data-color="#97ffb1">Lunch Break</li>'; $key_flag= true;}
+                    foreach($arrayUser as $k => $v) :
+                    if($value['user'] == $v['id']) {
+                        $value['user'] = $v['nickname'];
+                    }
+                endforeach;
+                $tmpUser = $value['user'];
+                if($value['project_type'] == 'Other' || $value['project_type'] == 'Research') {
+                    //$totalStandard  += 0;
+                    //$totalReal      += 0;
+                } else {
+                
+                }
+                $totalStandard  += $value['standard_duration'];
+                $totalReal      +=      $value['real_duration'];
+                $totalPerformance += $value['performance'];
+                
+                $hourStart  =   substr($value['start'], 0, 2);
+                $minStart   =   number_format((substr($value['start'], 3, 2) / 60), 1);
+                $hourEnd    =   substr($value['end'], 0, 2);
+                $minEnd     =   number_format((substr($value['end'], 3, 2) / 60), 1);
+            ?>
+                    <?php /* if($hourStart < 12 && $hourEnd > 13) {
+                        if($key_flag == false) { echo '<li data-start="'.$newDate.'T12:00" data-end="'.$newDate.'T13:00" data-color="#97ffb1">Lunch Break</li>'; $key_flag == true; }
+                        echo '<li data-start="'.$newDate.'T'. $value['start'] .'" data-end="'.$newDate.'T12:00" data-color="#95e6ff">'.$value['project_no'].'</li>';
+                        echo '<li data-start="'.$newDate.'T13:00" data-end="'.$newDate.'T'.$value['end'].'" data-color="#95e6ff">'.$value['project_no'].'</li>';
+                    } elseif(($hourStart < 12 && $hourEnd < 12) || ($hourStart > 13 && $hourEnd > 13)) {
+                        if($key_flag == false) { echo '<li data-start="'.$newDate.'T12:00" data-end="'.$newDate.'T13:00" data-color="#97ffb1">Lunch Break</li>'; $key_flag = true; }
+                        echo '<li data-start="'.$newDate.'T'. $value['start'] .'" data-end="'.$newDate.'T'.$value['end'].'" data-color="#95e6ff">'.$value['project_no'].'</li>';
+                        
+                    } else {
+                        $projectShow = (trim($value['project_no'] == '')) ? $value['project_name'] : $value['project_no']; 
+                        echo '<li data-start="'.$newDate.'T'. $value['start'] .'" data-end="'.$newDate.'T'.$value['end'].'" data-color="#95e6ff">'.$projectShow.'</li>';
+                        //echo '<li data-start="'.$newDate.'T'. $value['end'] .'" data-end="'.$newDate.'T17:30" data-color="#95e6ff"></li>';
+                    } */
+            
+                        if((($hourStart+$minStart) < 12 && ($hourEnd+$minEnd) < 12) || (($hourStart+$minStart) > 13 && ($hourEnd+$minEnd) > 13)) {
+                            echo '<li data-start="'.$newDate.'T'. $value['start'] .'" data-end="'.$newDate.'T'.$value['end'].'" data-color="#95e6ff">'.$value['project_no'].'</li>';
+                            
+                        } elseif (($hourStart+$minStart) < 12 && $hourEnd == 12) {
+                            echo '<li data-start="'.$newDate.'T'. $value['start'] .'" data-end="'.$newDate.'T12:00" data-color="#95e6ff">'.$value['project_no'].'</li>';
+                        } elseif($hourStart == 13 && ($hourEnd+$minEnd) > 13) {
+                            echo '<li data-start="'.$newDate.'T13:00" data-end="'.$newDate.'T'.$value['end'].'" data-color="#95e6ff">'.$value['project_no'].'</li>';
+                        } elseif (($hourStart+$minStart) < 12 && ($hourEnd+$minEnd) > 13) {
+                            echo '<li data-start="'.$newDate.'T'. $value['start'] .'" data-end="'.$newDate.'T12:00" data-color="#95e6ff">'.$value['project_no'].'</li>';
+                            echo '<li data-start="'.$newDate.'T13:00" data-end="'.$newDate.'T'.$value['end'].'" data-color="#95e6ff">'.$value['project_no'].'</li>';
+                        }
+                    ?>
+                    
+            <?php 
+                endforeach;
+                echo "</ul>";
+                echo "</div>";
+            endif; ?>  
+            
             <hr>
             <footer>
                 <p>&copy; Freesale Vietnam</p>
             </footer>
-        </div>
+        
         <!--/.fluid-container-->
 
         <script src="vendors/jquery-1.9.1.js"></script>
@@ -476,6 +539,7 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
         <script src="js/jquery.floatThead.min.js"></script>
         <script src="js/moment.min.js"></script>
         <script src="js/jquery.daterangepicker.js"></script>
+        <script src="js/timestack.min.js"></script>
         <script type="text/javascript">        
         $(document).ready(function () {
             var showPopover = $.fn.popover.Constructor.prototype.show;
@@ -512,23 +576,6 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
 
             $('.work-time-tooltip').tooltip();
 
-            /*$('#two-inputs').dateRangePicker({
-                format: 'DD/MM/YYYY',
-                separator : ' to ',
-            	getValue: function()
-            	{
-            		if ($('#date-range200').val() && $('#date-range201').val() )
-            			return $('#date-range200').val() + ' to ' + $('#date-range201').val();
-            		else
-            			return '';
-            	},
-            	setValue: function(s,s1,s2)
-            	{
-            		$('#date-range200').val(s1);
-            		$('#date-range201').val(s2);
-            	}
-            });*/
-
             $("#date-range201").datepicker({
         		dateFormat:"dd/mm/yy",
             });
@@ -540,6 +587,27 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
         	        $("#date-range201").val(date);
         	    }
         	});
+
+            $('#timeline').timestack({
+          	  span: 'hour',
+          	  data: [/*...*/],
+
+            	dateFormats: {                       //how to render times for various spans. These are moment formatting tokens.
+              	    year: 'MMM YYYY',
+              	    month: 'MMM DD',
+              	    day: 'MMM DD',
+              	    hour: 'HH:mm'
+              	  },
+
+              	  intervalFormats: {                   //how to render the intervals for various spans. These are moment formatting tokens.
+              	    year: 'YYYY',
+              	    month: 'MMM YYYY',
+              	    day: 'MMM DD',
+              	    hour: 'HH:mm'
+              	  },
+
+                  
+          	});
 
         });
         
