@@ -9,6 +9,28 @@ $today          = date("d/m/Y");
 if(isset($_GET['updateSQL']) && $_GET['updateSQL'] == 'yes') {
     require_once 'import_work.php';
     require_once 'import_worktime.php';
+    
+    if(isset($_SESSION['user_name']) && trim($_SESSION != '') && trim($_SESSION['date_from']) != '' && isset($_SESSION['date_from'])) {
+        $dateFrom       =   trim($_SESSION['date_from']);
+        $dateTo         =   trim($_SESSION['date_to']);
+        $userPost       =   $_SESSION['user_name'];
+        if($dateFrom == $dateTo) {
+            $queryWork      =   "SELECT * FROM `work` WHERE STR_TO_DATE( `work_date`, '%d/%m/%Y' ) = STR_TO_DATE( '{$dateTo}', '%d/%m/%Y' ) AND `user` = {$userPost} ORDER BY `work_date` ASC";
+            //SELECT * FROM `work` WHERE STR_TO_DATE( `work_date`, '%d/%m/%Y' ) BETWEEN STR_TO_DATE('02/11/2015', '%d/%m/%Y') AND STR_TO_DATE('23/11/2015', '%d/%m/%Y') AND `user` = 3
+        } else {
+            $queryWork      =   "SELECT * FROM `work` WHERE STR_TO_DATE( `work_date`, '%d/%m/%Y' ) BETWEEN STR_TO_DATE( '{$dateFrom}', '%d/%m/%Y' ) AND STR_TO_DATE( '{$dateTo}', '%d/%m/%Y' ) AND `user` = {$userPost} ORDER BY `work_date` ASC";
+        }
+        
+        $arrayWork      =   $databaseWork->listRecord($databaseWork->query($queryWork));
+        foreach ($arrayWork as $key => $value) {
+            foreach($arrayProject as $k => $v) {
+                if($arrayWork[$key]['project_type'] == $arrayProject[$k]['id']) {
+                    $arrayWork[$key]['project_type'] = $arrayProject[$k]['project_type'];
+                }
+            }
+        }
+    }
+    
 }
 require_once 'class/Database.class.php';
 $arrayProject       =   $databaseProject->listRecord($databaseProject->query('SELECT * FROM project_type'));
@@ -151,6 +173,9 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                                         </div>
                                         <div class="working_time">
                                                 <?php 
+                                                    $totalBeingLate     =   0;
+                                                    $workingDayTotal    =   0;
+                                                    $OvertimeTotal      =   0;
                                                     if(isset($_POST['user_name']) && trim($_POST['user_name']) != '' && isset($_POST['date_from']) && trim($_POST['date_from']) != '' && isset($_POST['date_to']) && trim($_POST['date_to']) != '') {
                                                         if($dateFrom != $dateTo) {
                                                             $queryWt = "SELECT * FROM `work_time` WHERE STR_TO_DATE( `work_date`, '%d/%m/%Y' ) BETWEEN STR_TO_DATE( '{$dateFrom}', '%d/%m/%Y' ) AND STR_TO_DATE( '{$dateTo}', '%d/%m/%Y' ) AND `user` = '{$_POST['user_name']}' ORDER BY `user`, `work_date` ASC";
@@ -164,26 +189,27 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                                                                         if(isWeekend($value['work_date']) == true) {
                                                                             continue;
                                                                         } else {
-                                                                            echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.($value['delay'] + $value['unpaid'] + $value['paid'] + $value['others']).'</strong></li>';
+                                                                            $totalBeingLate     += ($value['delay'] + $value['unpaid'] + $value['paid'] + $value['others']);
+                                                                            //echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.($value['delay'] + $value['unpaid'] + $value['paid'] + $value['others']).'</strong></li>';
                                                                         }
                                                                     }
+                                                                        echo '<li><strong>'.$totalBeingLate.'</strong></li>';
                                                                     echo '</ul>';
                                                                 echo '</li>';
                                                                     
                                                                 echo '<li>';
                                                                     // Working Day Hour
-                                                                    $workingDayTotal = 0;
                                                                     echo '<ul class="inline">';
                                                                         echo '<li>Working day hour: </li>';
                                                                         foreach($arrayGetWorktime as $key => $value) {
                                                                             if(isWeekend($value['work_date']) == true) {
                                                                                 continue;
-                                                                                $workingDayTotal += 0;
+                                                                                
                                                                             } else {
-                                                                                echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.$value['work_time'].'</strong></li>';
                                                                                 $workingDayTotal += $value['work_time'];
                                                                             }
                                                                         }
+                                                                        echo '<li><strong>'.$workingDayTotal.'</strong></li>';
                                                                     echo '</ul>';
                                                                 echo '</li>';
                                                                 
@@ -195,10 +221,11 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                                                                         if(isWeekend($value['work_date']) == true) {
                                                                             continue;
                                                                         } else {
-                                                                            echo '<li class="work-time-tooltip label label-important" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.$value['overtime'].'</strong></li> ';
+                                                                            $OvertimeTotal += $value['overtime'];
                                                                         }
                                                                         
                                                                     }
+                                                                    echo '<li><strong>'.$OvertimeTotal.'</strong></li> ';
                                                                     echo '</ul>';
                                                                 echo '</li>';
                                                                 
@@ -242,29 +269,30 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                                                                     echo '<ul class="inline">';
                                                                     echo '<li>Being late/ Leave early: </li>';
                                                                     foreach($arrayGetWorktime as $key => $value) {
-                                                                        if(isWeekend($value['work_date']) == true) { 
-                                                                            echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="Weekend"><strong>Weekend</strong></li>';
+                                                                        if(isWeekend($value['work_date']) == true) {
+                                                                            continue;
                                                                         } else {
-                                                                            echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.($value['delay'] + $value['unpaid'] + $value['paid'] + $value['others']).'</strong></li>';
+                                                                            $totalBeingLate     += ($value['delay'] + $value['unpaid'] + $value['paid'] + $value['others']);
+                                                                            //echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.($value['delay'] + $value['unpaid'] + $value['paid'] + $value['others']).'</strong></li>';
                                                                         }
                                                                     }
+                                                                        echo '<li><strong>'.$totalBeingLate.'</strong></li>';
                                                                     echo '</ul>';
                                                                 echo '</li>';
                                                                     
                                                                 echo '<li>';
                                                                     // Working Day Hour
-                                                                    $workingDayTotal = 0;
                                                                     echo '<ul class="inline">';
                                                                         echo '<li>Working day hour: </li>';
                                                                         foreach($arrayGetWorktime as $key => $value) {
                                                                             if(isWeekend($value['work_date']) == true) {
-                                                                                echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="Weekend"><strong>Weekend</strong></li>';
-                                                                                $workingDayTotal = 1;
+                                                                                continue;
+                                                                                
                                                                             } else {
-                                                                                echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.$value['work_time'].'</strong></li>';
                                                                                 $workingDayTotal += $value['work_time'];
                                                                             }
                                                                         }
+                                                                        echo '<li><strong>'.$workingDayTotal.'</strong></li>';
                                                                     echo '</ul>';
                                                                 echo '</li>';
                                                                 
@@ -274,12 +302,13 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                                                                     echo '<li>Overtime: </li>';
                                                                     foreach($arrayGetWorktime as $key => $value) {
                                                                         if(isWeekend($value['work_date']) == true) {
-                                                                            echo '<li class="work-time-tooltip" data-placement="top" data-toggle="tooltip" title="Weekend"><strong>Weekend</strong></li>';
+                                                                            continue;
                                                                         } else {
-                                                                            echo '<li class="work-time-tooltip label label-important" data-placement="top" data-toggle="tooltip" title="'.$value['work_date'].'"><strong>'.$value['overtime'].'</strong></li> ';
+                                                                            $OvertimeTotal += $value['overtime'];
                                                                         }
                                                                         
                                                                     }
+                                                                    echo '<li><strong>'.$OvertimeTotal.'</strong></li> ';
                                                                     echo '</ul>';
                                                                 echo '</li>';
                                                                 
@@ -386,14 +415,16 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
 										                  endforeach;
 										                  $tmpUser = $value['user'];
 										                  if($value['project_type'] == 'Other' || $value['project_type'] == 'Research') {
-										                      //$totalStandard  += 0;
-										                      //$totalReal      += 0;
+										                      $totalStandard  += 0;
+										                      $totalReal      += 0;
 										                  } else {
-										                      
+										                      $totalStandard  += $value['standard_duration'];
+										                      $totalReal      +=      $value['real_duration'];
 										                  }
-										                  $totalStandard  += $value['standard_duration'];
-										                  $totalReal      +=      $value['real_duration'];
+										                  /* $totalStandard  += $value['standard_duration'];
+										                  $totalReal      +=      $value['real_duration']; */
 										                  $totalPerformance += $value['performance'];
+										                  
 										  ?>
 										  
 								          <tr class="gradeX">
@@ -458,14 +489,22 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                 </div>
             </div>
             
-            <?php if(!empty($arrayWork) && isset($_POST['user_name'])) :
+            <?php if(!empty($arrayWork) && isset($_POST['user_name']) && $dateFrom == $dateTo) :
                 $countArrayWork =       count($arrayWork);
                 echo "<div id='timeline'>";
                 echo "<ul>";
                 $key_flag = false;
+                $colorDetail        =   '';
+                $maintenanceCheck   =       false;
+                $newtonCheck        =       false;
+                $fcCheck            =       false;
+                $newCodingCheck     =       false;
+                $domesticCheck      =       false;
+                $researchCheck      =       false;
+                $otherCheck         =       false;
                 foreach($arrayWork as $key => $value) :
                 $newDate = DateTime::createFromFormat('d/m/Y', $value['work_date'])->format('Y-m-d');
-                if($key_flag == false) { echo '<li data-start="'.$newDate.'T12:00" data-end="'.$newDate.'T13:00" data-color="#97ffb1">Lunch Break</li>'; $key_flag= true;}
+                if($key_flag == false) { echo '<li data-start="'.$newDate.'T12:00" data-end="'.$newDate.'T13:00" data-color="#f2ce87">Lunch Break</li>'; $key_flag= true;}
                     foreach($arrayUser as $k => $v) :
                     if($value['user'] == $v['id']) {
                         $value['user'] = $v['nickname'];
@@ -486,6 +525,44 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                 $minStart   =   number_format((substr($value['start'], 3, 2) / 60), 1);
                 $hourEnd    =   substr($value['end'], 0, 2);
                 $minEnd     =   number_format((substr($value['end'], 3, 2) / 60), 1);
+                
+                switch ($value['project_type']) {
+                    case 'Maintenance':
+                        $projectColor = 'rgb(149, 203, 255)';
+                        if($maintenanceCheck == false) { $colorDetail .= '<span class="badge" style="background-color: '.$projectColor.';">'.$value['project_type'].'</span>'; $maintenanceCheck = true; }
+                        $projectName  = $value['project_no'];
+                        break;
+                    case 'Newton':
+                        $projectColor = 'rgb(248, 247, 54)';
+                        if($newtonCheck == false) { $colorDetail .= '<span class="badge" style="background-color: '.$projectColor.';">'.$value['project_type'].'</span>'; $newtonCheck = true; }
+                        $projectName  = $value['project_no'];
+                        break;
+                    case 'FC':
+                        $projectColor = 'rgb(251, 194, 83)';
+                        if($fcCheck == false) { $colorDetail .= '<span class="badge" style="background-color: '.$projectColor.';">'.$value['project_type'].'</span>'; $fcCheck = true; }
+                        $projectName  = $value['project_name'] . ' (' . $value['page_name'] . ') ';
+                        break;
+                    case 'New Coding':
+                        $projectColor = 'rgb(255, 149, 192)';
+                        if($newCodingCheck == false) { $colorDetail .= '<span class="badge" style="background-color: '.$projectColor.';">'.$value['project_type'].'</span>'; $newCodingCheck = true; }
+                        $projectName  = (trim($value['page_name']) == '') ? $value['project_name'] . ' (' . $value['work_content'] . ') ' : $value['project_name'] . ' ('. $value['page_name'] . ') ';
+                        break;
+                    case 'Domestic':
+                        $projectColor = 'rgb(218, 152, 241)';
+                        if($domesticCheck == false) { $colorDetail .= '<span class="badge" style="background-color: '.$projectColor.';">'.$value['project_type'].'</span>'; $domesticCheck == true; }
+                        $projectName  = $value['project_name'];
+                        break;
+                    case 'Research':
+                        $projectColor = 'rgb(54, 248, 220)';
+                        if($researchCheck == false) { $colorDetail .= '<span class="badge" style="background-color: '.$projectColor.';">'.$value['project_type'].'</span>'; $researchCheck = true; }
+                        $projectName  = $value['project_name'];
+                        break;
+                    case 'Other':
+                        $projectColor = 'rgb(151, 255, 177)';
+                        if($otherCheck == false) { $colorDetail .= '<span class="badge" style="background-color: '.$projectColor.';">'.$value['project_type'].'</span>'; $otherCheck = true; }
+                        $projectName  = $value['work_content'];
+                        break;
+                }
             ?>
                     <?php /* if($hourStart < 12 && $hourEnd > 13) {
                         if($key_flag == false) { echo '<li data-start="'.$newDate.'T12:00" data-end="'.$newDate.'T13:00" data-color="#97ffb1">Lunch Break</li>'; $key_flag == true; }
@@ -502,15 +579,16 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                     } */
             
                         if((($hourStart+$minStart) < 12 && ($hourEnd+$minEnd) < 12) || (($hourStart+$minStart) > 13 && ($hourEnd+$minEnd) > 13)) {
-                            echo '<li data-start="'.$newDate.'T'. $value['start'] .'" data-end="'.$newDate.'T'.$value['end'].'" data-color="#95e6ff">'.$value['project_no'].'</li>';
+                            
+                            echo '<li data-start="'.$newDate.'T'. $value['start'] .'" data-end="'.$newDate.'T'.$value['end'].'" data-color="'.$projectColor.'">'.$projectName.'</li>';
                             
                         } elseif (($hourStart+$minStart) < 12 && $hourEnd == 12) {
-                            echo '<li data-start="'.$newDate.'T'. $value['start'] .'" data-end="'.$newDate.'T12:00" data-color="#95e6ff">'.$value['project_no'].'</li>';
+                            echo '<li data-start="'.$newDate.'T'. $value['start'] .'" data-end="'.$newDate.'T12:00" data-color="'.$projectColor.'">'.$projectName.'</li>';
                         } elseif($hourStart == 13 && ($hourEnd+$minEnd) > 13) {
-                            echo '<li data-start="'.$newDate.'T13:00" data-end="'.$newDate.'T'.$value['end'].'" data-color="#95e6ff">'.$value['project_no'].'</li>';
+                            echo '<li data-start="'.$newDate.'T13:00" data-end="'.$newDate.'T'.$value['end'].'" data-color="'.$projectColor.'">'.$projectName.'</li>';
                         } elseif (($hourStart+$minStart) < 12 && ($hourEnd+$minEnd) > 13) {
-                            echo '<li data-start="'.$newDate.'T'. $value['start'] .'" data-end="'.$newDate.'T12:00" data-color="#95e6ff">'.$value['project_no'].'</li>';
-                            echo '<li data-start="'.$newDate.'T13:00" data-end="'.$newDate.'T'.$value['end'].'" data-color="#95e6ff">'.$value['project_no'].'</li>';
+                            echo '<li data-start="'.$newDate.'T'. $value['start'] .'" data-end="'.$newDate.'T12:00" data-color="'.$projectColor.'">'.$projectName.'</li>';
+                            echo '<li data-start="'.$newDate.'T13:00" data-end="'.$newDate.'T'.$value['end'].'" data-color="'.$projectColor.'">'.$projectName.'</li>';
                         }
                     ?>
                     
@@ -518,6 +596,7 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                 endforeach;
                 echo "</ul>";
                 echo "</div>";
+                echo '<div class="pull-right">'.$colorDetail.'</div>';
             endif; ?>  
             
             <hr>

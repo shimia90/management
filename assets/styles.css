@@ -5,6 +5,23 @@ body {
 	background-color: #f5f5f5;
 }
 
+ul.timestack-events {
+	
+	position: relative;
+	
+}
+
+ul.timestack-events li {
+	
+	position: absolute !important;
+	
+}
+
+.intervals {
+	
+    margin-top: 150px !important;
+	
+}
 
 @media (min-width: 979px){
     /* body {
