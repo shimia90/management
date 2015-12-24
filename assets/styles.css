@@ -19,8 +19,63 @@ ul.timestack-events li {
 
 .intervals {
 	
-    margin-top: 150px !important;
+    margin-top: 50px !important;
 	
+}
+
+ul.timestack-events li[data-color="transparent"] {
+
+	border: none;
+	
+}
+
+ul.intervals li span {
+  bottom: -20px;
+  font-weight: bold;
+  left: -20px;
+  position: absolute;
+}
+
+ul.intervals li:first-child::before {
+  color: #ff0000;
+  content: "08:30";
+  font-weight: bold;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 5px;
+}
+
+ul.intervals li:last-child::before {
+  color: #ff0000;
+  content: "17:30";
+  font-weight: bold;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 5px;
+}
+
+#timeline ul.intervals {
+
+  margin: 50px 0 30px 0 !important;
+
+}
+
+.clearboth {
+	
+  display: block;
+	
+  clear: both;
+	
+}
+
+ul.intervals li {
+  position: relative;
+}
+
+ul.timestack-events li[data-color="transparent"] span.timestack-label em.timestack-time {
+  display: none;
 }
 
 @media (min-width: 979px){

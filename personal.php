@@ -257,7 +257,7 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                                                             
                                                             //Create Alert
                                                             if($dayRealDur > $workingDayTotal) {
-                                                                echo '<div class="alert alert-error">The real time duration didnt input correctly, please check !!!</div>';
+                                                                echo '<div class="alert alert-error">The real time duration on <strong>'.$value['work_date'].'</strong> didnt input correctly, please check !!!</div>';
                                                             }
                                                             
                                                         } else {
@@ -333,14 +333,14 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                                                                 echo '<li>';
                                                                     echo '<ul class="inline">';
                                                                         echo '<li>Performance: </li>';
-                                                                        echo '<li class="label label-info">'.round((($dayRealDur / $workingDayTotal) * 100), 2).'%</li>';
+                                                                        echo '<li class="label label-info">'.@round((($dayRealDur / $workingDayTotal) * 100), 2).'%</li>';
                                                                     echo '</ul>';
                                                                 echo '</li>';
                                                              echo '</ul>';
                                                             
                                                             //Create Alert
                                                             if($dayRealDur > $workingDayTotal) {
-                                                                echo '<div class="alert alert-error">The real time duration didnt input correctly, please check !!!</div>';
+                                                                echo '<div class="alert alert-error">The real time duration on <strong>'. $value['work_date'] .'</strong> didnt input correctly, please check !!!</div>';
                                                             }
                                                         }
                                                     }
@@ -444,7 +444,7 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
 											<td class="text-center"><?php echo emptyReturn($value['real_duration']); ?></td>
 											<td class="text-center"><?php echo emptyReturn($value['start']); ?></td>
 											<td class="text-center"><?php echo emptyReturn($value['end']); ?></td>
-											<td class="text-center"><?php echo emptyReturn($value['performance']); ?></td>
+											<td class="text-center"><?php echo emptyReturn($value['performance'] * 100); ?>%</td>
 											<td class="text-center"><?php echo emptyReturn($value['note']); ?></td>
 									      </tr>
 									      
@@ -469,7 +469,7 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
            									           <td class="text-center"><span class="label <?php echo $statusClass; ?>"><?php echo $totalReal; ?></span></td>
            									           <td></td>
            									           <td class="text-center"><b>Average</b></td>
-           									           <td class="text-center"><span class="label <?php echo $statusClass; ?>"><?php echo round(($totalStandard / $totalReal * 100), 2); ?>%</span></td>
+           									           <td class="text-center"><span class="label <?php echo $statusClass; ?>"><?php echo @round(($totalStandard / $totalReal * 100), 2); ?>%</span></td>
            									           <td colspan="2"></td>
            									       </tr>
            								   <?php endif;
@@ -504,7 +504,7 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                 $otherCheck         =       false;
                 foreach($arrayWork as $key => $value) :
                 $newDate = DateTime::createFromFormat('d/m/Y', $value['work_date'])->format('Y-m-d');
-                if($key_flag == false) { echo '<li data-start="'.$newDate.'T12:00" data-end="'.$newDate.'T13:00" data-color="#f2ce87">Lunch Break</li>'; $key_flag= true;}
+                if($key_flag == false) { echo '<li data-start="'.$newDate.'T08:30" data-end="'.$newDate.'T'.$value['start'].'" data-color="transparent"></li><li data-start="'.$newDate.'T12:00" data-end="'.$newDate.'T13:00" data-color="#AB82FF">Lunch Break</li><li data-start="'.$newDate.'T'.$value['end'].'" data-end="'.$newDate.'T17:30" data-color="transparent"></li>'; $key_flag= true;}
                     foreach($arrayUser as $k => $v) :
                     if($value['user'] == $v['id']) {
                         $value['user'] = $v['nickname'];
@@ -533,7 +533,7 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                         $projectName  = $value['project_no'];
                         break;
                     case 'Newton':
-                        $projectColor = 'rgb(248, 247, 54)';
+                        $projectColor = '#EE7621';
                         if($newtonCheck == false) { $colorDetail .= '<span class="badge" style="background-color: '.$projectColor.';">'.$value['project_type'].'</span>'; $newtonCheck = true; }
                         $projectName  = $value['project_no'];
                         break;
@@ -579,17 +579,24 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                     } */
             
                         if((($hourStart+$minStart) < 12 && ($hourEnd+$minEnd) < 12) || (($hourStart+$minStart) > 13 && ($hourEnd+$minEnd) > 13)) {
-                            
+                            //Addition
+                            /* if(($hourStart + $minStart) > 8.5) {
+                                echo '<li data-start="'.$newDate.'T8:30" data-end="'.$newDate.'T'.$value['start'].'" data-color="#FF3030">No Work</li>';
+                            } */
                             echo '<li data-start="'.$newDate.'T'. $value['start'] .'" data-end="'.$newDate.'T'.$value['end'].'" data-color="'.$projectColor.'">'.$projectName.'</li>';
                             
                         } elseif (($hourStart+$minStart) < 12 && $hourEnd == 12) {
+                            
                             echo '<li data-start="'.$newDate.'T'. $value['start'] .'" data-end="'.$newDate.'T12:00" data-color="'.$projectColor.'">'.$projectName.'</li>';
                         } elseif($hourStart == 13 && ($hourEnd+$minEnd) > 13) {
                             echo '<li data-start="'.$newDate.'T13:00" data-end="'.$newDate.'T'.$value['end'].'" data-color="'.$projectColor.'">'.$projectName.'</li>';
                         } elseif (($hourStart+$minStart) < 12 && ($hourEnd+$minEnd) > 13) {
                             echo '<li data-start="'.$newDate.'T'. $value['start'] .'" data-end="'.$newDate.'T12:00" data-color="'.$projectColor.'">'.$projectName.'</li>';
                             echo '<li data-start="'.$newDate.'T13:00" data-end="'.$newDate.'T'.$value['end'].'" data-color="'.$projectColor.'">'.$projectName.'</li>';
+                            
                         }
+                        
+                        
                     ?>
                     
             <?php 
@@ -598,7 +605,7 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                 echo "</div>";
                 echo '<div class="pull-right">'.$colorDetail.'</div>';
             endif; ?>  
-            
+            <div class="clearboth"></div>
             <hr>
             <footer>
                 <p>&copy; Freesale Vietnam</p>
@@ -670,7 +677,7 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
             $('#timeline').timestack({
           	  span: 'hour',
           	  data: [/*...*/],
-
+ 
             	dateFormats: {                       //how to render times for various spans. These are moment formatting tokens.
               	    year: 'MMM YYYY',
               	    month: 'MMM DD',
@@ -683,11 +690,8 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
               	    month: 'MMM YYYY',
               	    day: 'MMM DD',
               	    hour: 'HH:mm'
-              	  },
-
-                  
+              	  }, 
           	});
-
         });
         
         </script>
