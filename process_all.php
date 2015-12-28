@@ -98,7 +98,7 @@ for ($i = 0; $i < count($newton_data) - 1; $i ++) {
             $arrayNewton['Newton'][$i]['DELIVERY_BEFORE'] = '';
             foreach($arrayNewtonDetail['Newton'] as $a => $b) {
                 
-                if($arrayNewtonDetail['Newton'][$a]['PROJECT_NO'] == $newton_data[$i][1] && $arrayNewtonDetail['Newton'][$a]['PROJECT_NAME'] == $newton_data[$i][2] && $arrayNewtonDetail['Newton'][$a]['USER'] == $newton_data[$i][7] && $arrayNewtonDetail['Newton'][$a]['WORK_DATE'] == $newton_data[$i][0]) {
+                if($arrayNewtonDetail['Newton'][$a]['PROJECT_NO'] == $newton_data[$i][1] && $arrayNewtonDetail['Newton'][$a]['PROJECT_NAME'] == $newton_data[$i][2] && $arrayNewtonDetail['Newton'][$a]['USER'] == $newton_data[$i][7]) {
                     $arrayNewton['Newton'][$i]['ORDER_DATE']            = $b['ORDER_DATE'];
                     $arrayNewton['Newton'][$i]['DELIVERY_DATE']         = $b['DELIVERY_DATE'];
                     $arrayNewton['Newton'][$i]['DELIVERY_BEFORE']       = $b['DELIVERY_BEFORE'];

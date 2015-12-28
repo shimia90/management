@@ -41,7 +41,7 @@ $dateFrom           =   $today;
 $dateTo             =   $today;
 $dateAllFrom        =   $today;
 $dateAllTo          =   $today;
-
+$projectFilter      =   '';
 
 if(isset($_POST['date_from']) && isset($_POST['user_name']) && isset($_POST['date_to']) && trim($_POST['date_from']) != '' && trim($_POST['date_to']) != '' && trim($_POST['user_name']) != '') {
     $_SESSION['user_name']      =   $_POST['user_name'];
@@ -69,11 +69,16 @@ if(isset($_POST['date_from']) && isset($_POST['user_name']) && isset($_POST['dat
     
 }
 if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST['date_all_from']) != '' && trim($_POST['date_all_to']) != '') {
-        $dateAllFrom       =    $_POST['date_all_from'];
-        $dateAllTo          =   $_POST['date_all_to'];
-        if($dateAllFrom == $dateAllTo) {
+        $dateAllFrom        =       $_POST['date_all_from'];
+        $dateAllTo          =       $_POST['date_all_to'];
+        $projectFilter      =       $_POST['filter_project'];
+        if($dateAllFrom == $dateAllTo && $projectFilter != '') {
+            $queryWork      =   "SELECT * FROM `work` WHERE STR_TO_DATE( `work_date`, '%d/%m/%Y' ) = STR_TO_DATE( '{$dateAllTo}', '%d/%m/%Y' ) AND `project_type` = '{$projectFilter}' ORDER BY `user`, `work_date` ASC";
+        } elseif ($dateAllFrom != $dateAllTo && $projectFilter != '') {
+            $queryWork      =   "SELECT * FROM `work` WHERE STR_TO_DATE( `work_date`, '%d/%m/%Y' ) BETWEEN STR_TO_DATE( '{$dateAllFrom}', '%d/%m/%Y' ) AND STR_TO_DATE( '{$dateAllTo}', '%d/%m/%Y' ) AND `project_type` = '{$projectFilter}' ORDER BY `user`, `work_date` ASC";
+        } elseif($dateAllFrom == $dateAllTo && $projectFilter == '') {
             $queryWork      =   "SELECT * FROM `work` WHERE STR_TO_DATE( `work_date`, '%d/%m/%Y' ) = STR_TO_DATE( '{$dateAllTo}', '%d/%m/%Y' ) ORDER BY `user`, `work_date` ASC";
-        } else {
+        } elseif($dateAllFrom != $dateAllTo && $projectFilter == '') {
             $queryWork      =   "SELECT * FROM `work` WHERE STR_TO_DATE( `work_date`, '%d/%m/%Y' ) BETWEEN STR_TO_DATE( '{$dateAllFrom}', '%d/%m/%Y' ) AND STR_TO_DATE( '{$dateAllTo}', '%d/%m/%Y' ) ORDER BY `user`, `work_date` ASC";
         }
         
@@ -126,7 +131,7 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                             <div class="block-content collapse in">
                                 <div class="span12">
                                     <div id="search-information">
-                                        <div class="span6">
+                                        <div class="span8">
                                         
                                         <div id="example_length">
                                             <form action="personal.php" method="post" id="user_form" class="form-inline mb_10">
@@ -150,6 +155,7 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                                                     <!-- Date: <input type="text" id="datepicker_from" name="date_search" value="<?php //echo $datePost; ?>" placeholder="Date Range" />  -->
                                                     From <span id="two-inputs"><input id="date-range200" size="20" name="date_from" value="<?php if(isset($_SESSION['date_from']) && trim($_SESSION['date_from']) != '') { echo $_SESSION['date_from']; } else { echo $dateFrom; } ?>"> To <input id="date-range201" size="20" name="date_to" value="<?php if(isset($_SESSION['date_to']) && trim($_SESSION['date_to']) != '') { echo $_SESSION['date_to']; } else { echo $dateTo; } ?>"></span>
                                                 </label>
+             
                                                 <input type="hidden" name="type" value="single" />
                                                 <input type="hidden" name="page_submit" value="record" />
                                                 <button class="btn btn-warning" type="submit">Search</button>
@@ -348,9 +354,12 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                                         </div>
                                         
                                     </div>
-                                    <div class="span6 text-right"><a class="btn btn-success" href="personal.php?updateSQL=yes">Update Latest Data</a> <button tabindex="0" class="btn btn-primary" role="button" data-toggle="popover" data-trigger="click" data-placement="left" data-container="body" data-html="true" id="PopS"
+                                    
+                                    <div class="span4 text-right">
+                                    <a class="btn btn-success" href="personal.php?updateSQL=yes">Update Latest Data</a> <button tabindex="0" class="btn btn-primary" role="button" data-toggle="popover" data-trigger="click" data-placement="left" data-container="body" data-html="true" id="PopS"
                                         data-content='
                                         <div id="popover-content">
+                                        
                                         <form role="form" method="post" action="personal.php">
                                             
                                             <div class="form-group">
@@ -367,6 +376,21 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                                                         <span class="glyphicon glyphicon-calendar"></span>
                                                     </span>
                                                 </div>
+                                                
+                                                <!-- Create Filter -->
+                                                <?php 
+                                                    echo '<label><select id="filter_project" name="filter_project" style="margin-bottom: 0;">';
+                                                        echo '<option value="">Type of Project</option>';
+                                                        $selectedProject = (isset($_POST['filter_project']) && $_POST['filter_project'] != '') ? 'selected="selected"' : '';
+                                                    foreach($arrayProject as $key => $value) {
+                                                        if($value['project_type'] == 'Newton Detail' || $value['project_type'] == 'New Coding Detail' || $value['project_type'] == 'FC Detail' || $value['project_type'] == 'Working') {
+                                                            continue;
+                                                        }
+                                                        
+                                                        echo '<option value="'.$value['id'].'" '.$selectedProject.'>'.$value['project_type'].'</option>';
+                                                    }
+                                                    echo '</select></label>';
+                                                ?>
                                                 
                                             </div>
                                             <div class="form-group">
@@ -405,12 +429,15 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
 										  $totalReal          =       0;
 										  $totalPerformance   =       0;
 										  $i                  =       1;
+										  $arrayColor = array('#efdecd', '#ff9966', '#fae7b5', '#89cff0', '#bcd4e6', '#f5f5dc', '#fe6f5e', '#ace5ee', '#de5d83', '#1dacd6', '#bf94e4', '#ffc1cc', '#f0dc82', '#ed872d', '#a3c1ad', '#ffff99', '#e4717a', '#4997d0', '#ffb7c5', '#e4d00a', '#fbcce7', '#9bddff', '#fff8e7', '#e9967a', '#85bb65' );
 										      if(!empty($arrayWork)) { 
 										          $countArrayWork =       count($arrayWork);
+										          $arrayWorkKey = array_keys($arrayWork);
 										          foreach($arrayWork as $key => $value) :
 										              foreach($arrayUser as $k => $v) :
 										                  if($value['user'] == $v['id']) {
 										                      $value['user'] = $v['nickname'];
+										                      $userColor     =    $arrayColor[$v['id'] - 1];
 										                  }   
 										                  endforeach;
 										                  $tmpUser = $value['user'];
@@ -427,7 +454,7 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
 										                  
 										  ?>
 										  
-								          <tr class="gradeX">
+								          <tr class="gradeX" style="background-color: <?php echo $userColor; ?> !important;">
 								            <td><?php echo $value['work_date']; ?></td>
 								            <td class="text-center"><?php echo $key+1; ?></td>
 								            <?php if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST['date_all_from']) != '' && trim($_POST['date_all_to'])) : ?>
@@ -692,6 +719,20 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
               	    hour: 'HH:mm'
               	  }, 
           	});
+
+          	/* $("#filter_project").change(function(){
+          	    var url        = 'ajax/filter_project.php';
+          	    var dataSend   = {'id' : $(this).val()};
+          	    $("#example tbody tr.warning").hide();
+          	    $.get(url, dataSend, function(data, status){
+              	    result = $.parseJSON(data);
+                	  console.log(result);
+            	    var i = 0;
+            	    for(i; i < result.length; i++) {
+            	        //console.log(result[i].project_name);
+            	    }
+              	});
+            }); */
         });
         
         </script>
