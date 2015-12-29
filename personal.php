@@ -56,9 +56,30 @@ if(isset($_POST['date_from']) && isset($_POST['user_name']) && isset($_POST['dat
         //SELECT * FROM `work` WHERE STR_TO_DATE( `work_date`, '%d/%m/%Y' ) BETWEEN STR_TO_DATE('02/11/2015', '%d/%m/%Y') AND STR_TO_DATE('23/11/2015', '%d/%m/%Y') AND `user` = 3
     } else {
         $queryWork      =   "SELECT * FROM `work` WHERE STR_TO_DATE( `work_date`, '%d/%m/%Y' ) BETWEEN STR_TO_DATE( '{$dateFrom}', '%d/%m/%Y' ) AND STR_TO_DATE( '{$dateTo}', '%d/%m/%Y' ) AND `user` = {$_POST['user_name']} ORDER BY `work_date` ASC";
+        $queryWorkOver1 =   "SELECT SUM(`real_duration`) AS `total_time`, `work_date`, `user` FROM `work` WHERE STR_TO_DATE( `work_date`, '%d/%m/%Y' ) BETWEEN STR_TO_DATE( '{$dateFrom}', '%d/%m/%Y' ) AND STR_TO_DATE( '{$dateTo}', '%d/%m/%Y' ) AND `user` = {$_POST['user_name']} GROUP BY `work_date`";
+        //$queryWorkOver2 =   "SELECT `work_time`, `work_date`, `user` FROM `work_time` WHERE STR_TO_DATE( `work_date`, '%d/%m/%Y' ) BETWEEN STR_TO_DATE( '{$dateFrom}', '%d/%m/%Y' ) AND STR_TO_DATE( '{$dateTo}', '%d/%m/%Y' ) AND `user` = {$_POST['user_name']} GROUP BY `work_date`";
+        $queryWorkOver2 =   "SELECT `work_time`, `work_date`, `user` FROM `work_time` WHERE `user` = {$_POST['user_name']} AND `work_date` IN ( SELECT `work_date` FROM `work` WHERE STR_TO_DATE( `work_date`, '%d/%m/%Y' ) BETWEEN STR_TO_DATE( '{$dateFrom}', '%d/%m/%Y' ) AND STR_TO_DATE( '{$dateTo}', '%d/%m/%Y' ) AND `user` = {$_POST['user_name']} ) GROUP BY `work_date`";
     }
         
     $arrayWork      =   $databaseWork->listRecord($databaseWork->query($queryWork));
+    
+    if($dateFrom != $dateTo) {
+        // Process Overload Work
+        $arrayWorkOver1 =   $databaseWork->listRecord($databaseWork->query($queryWorkOver1));
+        $arrayWorkOver2 =   $databaseWork->listRecord($databaseWork->query($queryWorkOver2));
+        $resultOverload = array();
+        foreach($arrayWorkOver1 as $key => $value) {
+            if(isset($arrayWorkOver1[$key])) {
+                if($arrayWorkOver1[$key]['total_time'] > $arrayWorkOver2[$key]['work_time']) {
+                    $resultOverload['work_date'][] = $arrayWorkOver1[$key]['work_date'];
+                    $resultOverload['user'][] = $arrayWorkOver1[$key]['user'];
+                }
+            } else {
+                break;
+            }
+        }
+
+    }
     foreach ($arrayWork as $key => $value) {
         foreach($arrayProject as $k => $v) {
             if($arrayWork[$key]['project_type'] == $arrayProject[$k]['id']) {
@@ -262,8 +283,16 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                                                              echo '</ul>';
                                                             
                                                             //Create Alert
-                                                            if($dayRealDur > $workingDayTotal) {
-                                                                echo '<div class="alert alert-error">The real time duration on <strong>'.$value['work_date'].'</strong> didnt input correctly, please check !!!</div>';
+                                                            if($dateFrom == $dateTo) {
+                                                                if($dayRealDur > $workingDayTotal) {
+                                                                    echo '<div class="alert alert-error">The real time duration on <strong>'.$value['work_date'].'</strong> didnt input correctly, please check !!!</div>';
+                                                                }
+                                                            } else {
+                                                                if(!empty($resultOverload)) {
+                                                                    foreach($resultOverload['work_date'] as $key => $value) {
+                                                                        echo '<div class="alert alert-error">The real time duration on <strong>'.$value.'</strong> didnt input correctly, please check !!!</div>';
+                                                                    }
+                                                                }
                                                             }
                                                             
                                                         } else {
@@ -720,19 +749,7 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
               	  }, 
           	});
 
-          	/* $("#filter_project").change(function(){
-          	    var url        = 'ajax/filter_project.php';
-          	    var dataSend   = {'id' : $(this).val()};
-          	    $("#example tbody tr.warning").hide();
-          	    $.get(url, dataSend, function(data, status){
-              	    result = $.parseJSON(data);
-                	  console.log(result);
-            	    var i = 0;
-            	    for(i; i < result.length; i++) {
-            	        //console.log(result[i].project_name);
-            	    }
-              	});
-            }); */
+
         });
         
         </script>
