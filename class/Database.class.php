@@ -83,7 +83,7 @@ class Database{
 	
 	// QUERY
 	public function query($query){
-		$this->resultQuery = mysqli_query($this->connect, $query);	
+		@$this->resultQuery = mysqli_query($this->connect, $query);	
 		return $this->resultQuery;
 	}
 
@@ -150,7 +150,7 @@ class Database{
 	public function listRecord($resultQuery = null){
 		$result = array();
 		$resultQuery = ($resultQuery == null) ? $this->resultQuery : $resultQuery;
-		if(mysqli_num_rows($resultQuery) > 0){
+		if(@mysqli_num_rows($resultQuery) > 0){
 			while($row = mysqli_fetch_assoc($resultQuery)){
 				$result[] = $row;
 			}

@@ -42,7 +42,6 @@ $dateTo             =   $today;
 $dateAllFrom        =   $today;
 $dateAllTo          =   $today;
 $projectFilter      =   '';
-$queryTotal         =   '';
 
 if(isset($_POST['date_from']) && isset($_POST['user_name']) && isset($_POST['date_to']) && trim($_POST['date_from']) != '' && trim($_POST['date_to']) != '' && trim($_POST['user_name']) != '') {
     $_SESSION['user_name']      =   $_POST['user_name'];
@@ -97,17 +96,13 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
         $projectFilter      =       $_POST['filter_project'];
         if($dateAllFrom == $dateAllTo && $projectFilter != '') {
             $queryWork      =   "SELECT * FROM `work` WHERE STR_TO_DATE( `work_date`, '%d/%m/%Y' ) = STR_TO_DATE( '{$dateAllTo}', '%d/%m/%Y' ) AND `project_type` = '{$projectFilter}' ORDER BY `user`, `work_date` ASC";
-            $queryTotal     =   "SELECT SUM(`real_duration`) AS `total_real`, SUM(`standard_duration`) AS `total_standard`, (SUM(`performance`)/ COUNT(`id`)) AS `total_performance`  FROM `work` WHERE STR_TO_DATE( `work_date`, '%d/%m/%Y' ) = STR_TO_DATE( '{$dateAllTo}', '%d/%m/%Y' ) AND `project_type` = '{$projectFilter}' ORDER BY `user`, `work_date` ASC";
         } elseif ($dateAllFrom != $dateAllTo && $projectFilter != '') {
             $queryWork      =   "SELECT * FROM `work` WHERE STR_TO_DATE( `work_date`, '%d/%m/%Y' ) BETWEEN STR_TO_DATE( '{$dateAllFrom}', '%d/%m/%Y' ) AND STR_TO_DATE( '{$dateAllTo}', '%d/%m/%Y' ) AND `project_type` = '{$projectFilter}' ORDER BY `user`, `work_date` ASC";
-            $queryTotal     =   "SELECT SUM(`real_duration`) AS `total_real`, SUM(`standard_duration`) AS `total_standard`, (SUM(`performance`)/ COUNT(`id`)) AS `total_performance`  FROM `work` WHERE STR_TO_DATE( `work_date`, '%d/%m/%Y' ) BETWEEN STR_TO_DATE( '{$dateAllFrom}', '%d/%m/%Y' ) AND STR_TO_DATE( '{$dateAllTo}', '%d/%m/%Y' ) AND `project_type` = '{$projectFilter}' ORDER BY `user`, `work_date` ASC";
         } elseif($dateAllFrom == $dateAllTo && $projectFilter == '') {
             $queryWork      =   "SELECT * FROM `work` WHERE STR_TO_DATE( `work_date`, '%d/%m/%Y' ) = STR_TO_DATE( '{$dateAllTo}', '%d/%m/%Y' ) ORDER BY `user`, `work_date` ASC";
         } elseif($dateAllFrom != $dateAllTo && $projectFilter == '') {
             $queryWork      =   "SELECT * FROM `work` WHERE STR_TO_DATE( `work_date`, '%d/%m/%Y' ) BETWEEN STR_TO_DATE( '{$dateAllFrom}', '%d/%m/%Y' ) AND STR_TO_DATE( '{$dateAllTo}', '%d/%m/%Y' ) ORDER BY `user`, `work_date` ASC";
         }
-        
-        $arrayTotalFilter   =   $databaseWork->listRecord($databaseWork->query($queryTotal));
         
         $arrayWork      =   $databaseWork->listRecord($databaseWork->query($queryWork));
         foreach ($arrayWork as $key => $value) {
@@ -389,11 +384,12 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                                                             //Create Alert
                                                             if($dayRealDur > $workingDayTotal) {
                                                                 if($flagAbort == false) {
-                                                                    echo '<div class="alert_wrapper"><div class="alert alert-error"><button id="btn_abort" type="button" class="close" data-dismiss="alert" data-user="'.$value['user'].'" data-date="'.$value['work_date'].'">&times;</button>The real time duration on <strong>'. $value['work_date'] .'</strong> didnt input correctly, please check !!!</div></div>';
+                                                                    echo '<div class="alert alert-error"><button id="btn_abort" type="button" class="close" data-dismiss="alert" data-user="'.$value['user'].'" data-date="'.$value['work_date'].'">&times;</button>The real time duration on <strong>'. $value['work_date'] .'</strong> didnt input correctly, please check !!!</div>';
                                                                 }
                                                             }
                                                         }
-                                                        echo '<div class="alert alert-info">（※）Capacity=Real duration/Working real hour --> hiện thị % lượng công việc làm trong ngày　（稼働率）<br />（※）Performance=Real duration/Standard duration --> hiện thị % tốc độ công việc　（パフォーマンス）</div>';
+                                                        echo '<div class="alert alert-info">（※）Capacity=Real duration/Working real hour --> hiện thị % lượng công việc làm trong ngày　（稼働率）</div>';
+                                                        echo '<div class="alert alert-info">（※）Performance=Real duration/Standard duration --> hiện thị % tốc độ công việc　（パフォーマンス）</div>';
                                                     }
                                                 ?>
                                                 
@@ -402,11 +398,6 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                                     </div>
                                     
                                     <div class="span4 text-right">
-                                    <?php 
-                                        if(!empty($arrayTotalFilter)) { 
-                                            echo '<a href="#work_sum" class="btn btn-info">Total View</a>';
-                                        }
-                                    ?>        
                                     <a class="btn btn-success" href="personal.php?updateSQL=yes">Update Latest Data</a> <button tabindex="0" class="btn btn-primary" role="button" data-toggle="popover" data-trigger="click" data-placement="left" data-container="body" data-html="true" id="PopS"
                                         data-content='
                                         <div id="popover-content">
@@ -577,22 +568,6 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
            									           <td colspan="2"></td>
            									       </tr>
            								   <?php endif;
-                   								   //Show Total Work
-                   								   if(!empty($arrayTotalFilter)) {
-                   								       echo '<tr id="work_sum">';
-                       								       foreach($arrayTotalFilter as $key => $value) {
-                       								         echo '<td colspan="9"></td>
-                                                                   <td class="text-center"><b>Total</b></td>
-                                                                   <td class="text-center"><span class="label label-info">'.$value['total_standard'].'</span></td>
-                                                                   <td class="text-center"><span class="label label-info">'.$value['total_real'].'</span></td>
-                                                                   <td></td>
-                       									           <td class="text-center"><b>Average</b></td>
-                       									           <td class="text-center"><span class="label label-info">'.@round(($totalPerformance / $j * 100), 2).'%</span></td>
-                       									           <td colspan="2"></td>
-                                                                    ';
-                       								       }
-                   								       echo '</tr>';
-                   								   }
 										      } else {
 									       ?>
 									             <tr class="warning">
@@ -730,6 +705,7 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
             <footer>
                 <p>&copy; Freesale Vietnam</p>
             </footer>
+        
         <!--/.fluid-container-->
 
         <script src="vendors/jquery-1.9.1.js"></script>
@@ -812,21 +788,15 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
               	  }, 
           	});
 
-            $("#btn_abort").click(function(){
+            /* $("#btn_abort").click(function(){
                 var dataUser = $(this).attr('data-user');
                 var dataDate = $(this).attr('data-date');
                 var url      = 'abort.php';
                 var dataSend = {'user' : dataUser, 'date' : dataDate};
                 $.post(url, dataSend, function(data, status){
-                    //console.log(data);
-                    if(status == 'success') {
-                        if(data == 'success') {
-                            $(".alert_wrapper .alert-error").fadeOut('fast');
-                            $(".alert_wrapper").html('<div class="alert alert-success">Update Successfully</div>').fadeIn('slow');
-                        }
-                    }
-                });
-            });
+                    console.log(data);
+                }, 'json');
+            }); */
         });
         
         </script>

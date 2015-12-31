@@ -57,7 +57,7 @@ if(!empty($arrayMaintenance)) {
             $arrayToSelect['project_type']  = $arrayMaintenance['Maintenance'][$key]['project_type'];
             $arrayToSelect['project_name']  = $arrayMaintenance['Maintenance'][$key]['project_name'];
             $arrayToSelect['work_date']  = $arrayMaintenance['Maintenance'][$key]['work_date'];
-            $arrayToSelect['user']  = $arrayMaintenance['Maintenance'][$key]['user'];
+            //$arrayToSelect['user']  = $arrayMaintenance['Maintenance'][$key]['user'];
             if($databaseWork->checkExistRow($arrayToSelect) == 1) {
                 $arrayIdMaintenance = $databaseWork->returnID($arrayToSelect);
                 if(!empty($arrayIdMaintenance)) {
@@ -92,7 +92,7 @@ if(!empty($arrayNewton)) {
            $arrayNewtonToSelect['project_type']   =   $arrayNewton['Newton'][$key]['project_type'];
            $arrayNewtonToSelect['project_name']   =   $arrayNewton['Newton'][$key]['project_name'];
            $arrayNewtonToSelect['work_date']   =   $arrayNewton['Newton'][$key]['work_date'];
-           $arrayNewtonToSelect['user']   =   $arrayNewton['Newton'][$key]['user'];
+           //$arrayNewtonToSelect['user']   =   $arrayNewton['Newton'][$key]['user'];
            $arrayNewtonToSelect['type']   =   $arrayNewton['Newton'][$key]['type'];
             if($databaseWork->checkExistRow($arrayNewtonToSelect) == 1) {
                 
@@ -167,7 +167,7 @@ if(!empty($arrayFc)) {
             //$databaseWork->insert($arrayFc['FC'][$key]);
             $arrayFcToSelect['project_no']    =   $arrayFc['FC'][$key]['project_no'];
             $arrayFcToSelect['project_type']    =   $arrayFc['FC'][$key]['project_type'];
-            $arrayFcToSelect['project_name']    =   $arrayFc['FC'][$key]['project_name'];
+            //$arrayFcToSelect['project_name']    =   $arrayFc['FC'][$key]['project_name'];
             $arrayFcToSelect['work_date']    =   $arrayFc['FC'][$key]['work_date'];
             $arrayFcToSelect['user']    =   $arrayFc['FC'][$key]['user'];
             $arrayFcToSelect['type']    =   $arrayFc['FC'][$key]['type'];
