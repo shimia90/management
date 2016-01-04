@@ -725,11 +725,27 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                 echo "</div>";
                 echo '<div class="pull-right">'.$colorDetail.'</div>';
             endif; ?>  
+            <hr>
+            <!--  Chart Area -->
+            <div id="chart_area">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="span6">
+                            <div id="chartContainer" style="height: 300px; width: 100%;"></div>
+                        </div><!--  span4 -->
+                        <div class="span6">
+                            <div id="project_chart" style="height: 300px; width: 100%;"></div>
+                        </div>
+                </div><!--  row -->
+                </div>
+            </div><!--  chart_area -->
+            <!--  End Chart Area -->
             <div class="clearboth"></div>
             <hr>
             <footer>
                 <p>&copy; Freesale Vietnam</p>
             </footer>
+            
         <!--/.fluid-container-->
 
         <script src="vendors/jquery-1.9.1.js"></script>
@@ -745,6 +761,7 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
         <script src="js/moment.min.js"></script>
         <script src="js/jquery.daterangepicker.js"></script>
         <script src="js/timestack.min.js"></script>
+        <script src="js/highcharts.js"></script>
         <script type="text/javascript">        
         $(document).ready(function () {
             var showPopover = $.fn.popover.Constructor.prototype.show;
@@ -830,6 +847,197 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
         });
         
         </script>
+        <!--  Monthly column chart -->
+        <?php if(isset($_POST['date_from']) && isset($_POST['user_name']) && isset($_POST['date_to']) && trim($_POST['date_from']) != '' && trim($_POST['date_to']) != '' && trim($_POST['user_name']) != '') : 
+                $dateFormat = 'd/m/Y';
+                $arrayResultChart = array();
+                $strDays  = '';
+                $stringDate = $_POST['date_to'];
+                $dateChartMonth = DateTime::createFromFormat($dateFormat, $stringDate)->format('m');
+                $dateChartYear = DateTime::createFromFormat($dateFormat, $stringDate)->format('Y');
+                $numberDays = cal_days_in_month(CAL_GREGORIAN, $dateChartMonth, $dateChartYear);
+                $chartQuery = "SELECT * FROM `work` WHERE `user` = '{$_POST['user_name']}' AND `work_date` LIKE '%/{$dateChartMonth}/{$dateChartYear}' GROUP BY `project_type`, `work_date` ORDER BY `work_date`";
+                /* $chartQuery = "SELECT `project_type`, `real_duration` , sum(`real_duration`) AS `tong`, `user`, `work_date` FROM `work` WHERE `user` = '{$_POST['user_name']}' AND `work_date` LIKE '%/{$dateChartMonth}/{$dateChartYear}' GROUP BY `project_type`, `work_date` ORDER BY `work_date` ASC"; */
+                
+                $arrayChart = $databaseWork->listRecord($databaseWork->query($chartQuery));
+                foreach ($arrayChart as $key => $value) {
+                    foreach($arrayProject as $k => $v) {
+                        if($arrayChart[$key]['project_type'] == $arrayProject[$k]['id']) {
+                            $arrayChart[$key]['project_type'] = $arrayProject[$k]['project_type'];
+                        }
+                    }
+                }
+                
+                
+                for($i = 1; $i<= $numberDays; $i++) {
+                
+                    if($i < $numberDays) {
+                        $strDays .= "'".$i ."', ";
+                    } else {
+                        $strDays .= "'".$i ."'";
+                    }
+                    /* if(empty($arrayChart[$i])) {
+                        $arrayChart[$i] = array();
+                    } */
+                    foreach($arrayChart as $key => $value) {
+                        $trimDate = (substr($value['work_date'], 0, 2) < 10) ? substr($value['work_date'], 1, 1) : substr($value['work_date'], 0, 2);
+                        if(empty($arrayResultChart[$value['project_type']][$i])) {
+                            $arrayResultChart[$value['project_type']][$i][$value['project_type']] = 0;
+                        } else {
+                            $realNumber =  number_format($value['real_duration'], 1, '.', ' ');
+                            $arrayResultChart[$value['project_type']][$trimDate][$value['project_type']] = $realNumber;
+                        }
+                        ksort($arrayResultChart[$value['project_type']]);
+                    }
+                    
+                }
+                
+                $arrayDataChart = array();
+                $strData = '';
+                foreach($arrayResultChart as $key => $value) {
+                    $arrayDataChart[$key]['name'] = $key;
+                    foreach($value as $k => $v) {
+                        $strData .= $v[$key] . ', ';
+                    }
+                    
+                    
+                    $strData = 'data: ['.$strData.']';
+                    //$strData = str_replace(', ]', ']', $strData);
+                    $arrayDataChart[$key]['data'] = $strData;
+                    $strData = '';
+                }
+                
+                // Pie chart project
+                $sqlPieChart = "SELECT count(`project_type`) as `project_count`, `project_type` FROM `work` WHERE `user` = '{$_POST['user_name']}' AND `work_date` LIKE '%/{$dateChartMonth}/%' GROUP BY `project_type`";
+                echo '<pre>';
+                print_r($arrayResultChart);
+                echo '</pre>';
+                
+                echo $chartQuery;
+                
+                echo $strDays;
+        ?>
+        <script type="text/javascript">
+        $(function () {
+            $('#chartContainer').highcharts({
+                chart: {
+                    type: 'column'
+                },
+                title: {
+                    text: 'Stacked column chart'
+                },
+                xAxis: {
+                    categories: [<?php echo $strDays; ?>]
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: 'Total fruit consumption'
+                    },
+                    stackLabels: {
+                        enabled: false,
+                        style: {
+                            fontWeight: 'bold',
+                            color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+                        }
+                    }
+                },
+                legend: {
+                    align: 'right',
+                    x: -30,
+                    verticalAlign: 'top',
+                    y: 25,
+                    floating: true,
+                    backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
+                    borderColor: '#CCC',
+                    borderWidth: 1,
+                    shadow: false
+                },
+                tooltip: {
+                    formatter: function () {
+                        return '<b>' + this.x + '</b><br/>' +
+                            this.series.name + ': ' + this.y + '<br/>' +
+                            'Total: ' + this.point.stackTotal;
+                    }
+                },
+                plotOptions: {
+                    column: {
+                        stacking: 'normal',
+                        dataLabels: {
+                            enabled: false,
+                            color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white',
+                            style: {
+                                textShadow: '0 0 3px black'
+                            }
+                        }
+                    }
+                },
+                series: [<?php foreach($arrayDataChart as $key => $value) :?>{
+                    name: '<?php echo $key; ?>',
+                    <?php echo $value['data']; ?>
+                },<?php endforeach; ?>]
+            });
+        });
+
+        $(function () {
+
+            $(document).ready(function () {
+
+                // Build the chart
+                $('#project_chart').highcharts({
+                    chart: {
+                        plotBackgroundColor: null,
+                        plotBorderWidth: null,
+                        plotShadow: false,
+                        type: 'pie'
+                    },
+                    title: {
+                        text: 'Browser market shares January, 2015 to May, 2015'
+                    },
+                    tooltip: {
+                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: false
+                            },
+                            showInLegend: true
+                        }
+                    },
+                    series: [{
+                        name: 'Brands',
+                        colorByPoint: true,
+                        data: [{
+                            name: 'Microsoft Internet Explorer',
+                            y: 56.33
+                        }, {
+                            name: 'Chrome',
+                            y: 24.03,
+                            sliced: true,
+                            selected: true
+                        }, {
+                            name: 'Firefox',
+                            y: 10.38
+                        }, {
+                            name: 'Safari',
+                            y: 4.77
+                        }, {
+                            name: 'Opera',
+                            y: 0.91
+                        }, {
+                            name: 'Proprietary or Undetectable',
+                            y: 0.2
+                        }]
+                    }]
+                });
+            });
+        });
+		</script>
+		<?php endif; ?>
+		<!-- End Monthly Column -->
     </body>
 
 </html>
