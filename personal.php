@@ -730,13 +730,20 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
             <div id="chart_area">
                 <div class="container-fluid">
                     <div class="row">
-                        <div class="span6">
+                        <div class="span12">
                             <div id="chartContainer" style="height: 300px; width: 100%;"></div>
                         </div><!--  span4 -->
+                        
+                    </div><!--  row -->
+                    <hr>
+                    <div class="row">
                         <div class="span6">
                             <div id="project_chart" style="height: 300px; width: 100%;"></div>
                         </div>
-                </div><!--  row -->
+                        <div class="span6">
+                            <div id="project_maintenance_chart" style="height: 300px; width: 100%;"></div>
+                        </div>
+                    </div>
                 </div>
             </div><!--  chart_area -->
             <!--  End Chart Area -->
@@ -856,7 +863,8 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                 $dateChartMonth = DateTime::createFromFormat($dateFormat, $stringDate)->format('m');
                 $dateChartYear = DateTime::createFromFormat($dateFormat, $stringDate)->format('Y');
                 $numberDays = cal_days_in_month(CAL_GREGORIAN, $dateChartMonth, $dateChartYear);
-                $chartQuery = "SELECT * FROM `work` WHERE `user` = '{$_POST['user_name']}' AND `work_date` LIKE '%/{$dateChartMonth}/{$dateChartYear}' GROUP BY `project_type`, `work_date` ORDER BY `work_date`";
+                //$chartQuery = "SELECT * FROM `work` WHERE `user` = '{$_POST['user_name']}' AND `work_date` LIKE '%/{$dateChartMonth}/{$dateChartYear}' GROUP BY `project_type`, `work_date` ORDER BY `work_date`";
+                $chartQuery = "SELECT `work_date`, SUM(`real_duration`) AS `real_duration`, `project_type`, `user` FROM `work` WHERE `user` = '{$_POST['user_name']}' AND `work_date` LIKE '%/{$dateChartMonth}/{$dateChartYear}' GROUP BY `project_type`, `work_date` ORDER BY `work_date`";
                 /* $chartQuery = "SELECT `project_type`, `real_duration` , sum(`real_duration`) AS `tong`, `user`, `work_date` FROM `work` WHERE `user` = '{$_POST['user_name']}' AND `work_date` LIKE '%/{$dateChartMonth}/{$dateChartYear}' GROUP BY `project_type`, `work_date` ORDER BY `work_date` ASC"; */
                 
                 $arrayChart = $databaseWork->listRecord($databaseWork->query($chartQuery));
@@ -881,14 +889,25 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                     } */
                     foreach($arrayChart as $key => $value) {
                         $trimDate = (substr($value['work_date'], 0, 2) < 10) ? substr($value['work_date'], 1, 1) : substr($value['work_date'], 0, 2);
-                        if(empty($arrayResultChart[$value['project_type']][$i])) {
-                            $arrayResultChart[$value['project_type']][$i][$value['project_type']] = 0;
-                        } else {
+
                             $realNumber =  number_format($value['real_duration'], 1, '.', ' ');
                             $arrayResultChart[$value['project_type']][$trimDate][$value['project_type']] = $realNumber;
-                        }
+                            
+                        
                         ksort($arrayResultChart[$value['project_type']]);
                     }
+                    
+                }
+                
+                foreach($arrayResultChart as $key => $value) {
+                    
+                    for($i = 1; $i<= $numberDays; $i++) {
+                        if(array_key_exists($i, $value) == false) {
+                            $arrayResultChart[$key][$i][$key] = 0;
+                        }
+                    }
+                    
+                    ksort($arrayResultChart[$key]);
                     
                 }
                 
@@ -908,14 +927,26 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                 }
                 
                 // Pie chart project
-                $sqlPieChart = "SELECT count(`project_type`) as `project_count`, `project_type` FROM `work` WHERE `user` = '{$_POST['user_name']}' AND `work_date` LIKE '%/{$dateChartMonth}/%' GROUP BY `project_type`";
-                echo '<pre>';
-                print_r($arrayResultChart);
-                echo '</pre>';
+                $sqlPieChart = "SELECT count(`project_type`) as `project_count`, `project_type` FROM `work` WHERE `user` = '{$_POST['user_name']}' AND `work_date` LIKE '%/{$dateChartMonth}/{$dateChartYear}' GROUP BY `project_type`";
+                $arrayPieChart = $databaseWork->listRecord($databaseWork->query($sqlPieChart));
+                $totalProjectCount = count($arrayPieChart);
+                foreach ($arrayPieChart as $key => $value) {
+                    $arrayPieChart[$key]['project_count'] = $value['project_count'] / $totalProjectCount;
+                    foreach($arrayProject as $k => $v) {
+                        if($arrayPieChart[$key]['project_type'] == $arrayProject[$k]['id']) {
+                            $arrayPieChart[$key]['project_type'] = $arrayProject[$k]['project_type'];
+                        }
+                    }
+                }
                 
-                echo $chartQuery;
-                
-                echo $strDays;
+                // Maintenance Chart Project
+                $arrayChartHour = array(
+                    '0.5~2.5h' => array('0.5', '2.5'), '3h~4.5h' => array('3', '4.5'), '5h~8h' => array('5', '8')
+                );
+                foreach($arrayChartHour as $key => $value) {
+                    $queryMaintenanceChart = "SELECT COUNT(`id`) AS `{$key}` FROM `work` WHERE `real_duration` BETWEEN '{$value[0]}' AND '{$value[1]}' AND `user` = '{$_POST['user_name']}' AND `work_date` LIKE '%/{$dateChartMonth}/{$dateChartYear}'";
+                    $arrayMaintenanceSum[]   = $databaseWork->listRecord($databaseWork->query($queryMaintenanceChart));
+                }
         ?>
         <script type="text/javascript">
         $(function () {
@@ -924,15 +955,21 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                     type: 'column'
                 },
                 title: {
-                    text: 'Stacked column chart'
+                    text: 'Working Chart'
                 },
                 xAxis: {
                     categories: [<?php echo $strDays; ?>]
                 },
                 yAxis: {
                     min: 0,
+                    tickInterval: 1,
+                    breaks: [{
+                        from: 5,
+                        to: 10,
+                        breakSize: 1
+                    }],
                     title: {
-                        text: 'Total fruit consumption'
+                        text: 'Hours'
                     },
                     stackLabels: {
                         enabled: false,
@@ -972,7 +1009,7 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
                         }
                     }
                 },
-                series: [<?php foreach($arrayDataChart as $key => $value) :?>{
+                series: [<?php foreach($arrayDataChart as $key => $value) :?>{ 
                     name: '<?php echo $key; ?>',
                     <?php echo $value['data']; ?>
                 },<?php endforeach; ?>]
@@ -980,59 +1017,86 @@ if(isset($_POST['date_all_from']) && isset($_POST['date_all_to']) && trim($_POST
         });
 
         $(function () {
-
-            $(document).ready(function () {
-
-                // Build the chart
-                $('#project_chart').highcharts({
-                    chart: {
-                        plotBackgroundColor: null,
-                        plotBorderWidth: null,
-                        plotShadow: false,
-                        type: 'pie'
-                    },
-                    title: {
-                        text: 'Browser market shares January, 2015 to May, 2015'
-                    },
-                    tooltip: {
-                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-                    },
-                    plotOptions: {
-                        pie: {
-                            allowPointSelect: true,
-                            cursor: 'pointer',
-                            dataLabels: {
-                                enabled: false
-                            },
-                            showInLegend: true
+            $('#project_chart').highcharts({
+                chart: {
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false,
+                    type: 'pie'
+                },
+                title: {
+                    text: 'Project Working'
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                            style: {
+                                color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                            }
                         }
+                    }
+                },
+                series: [{
+                	name: 'Project Percent',
+                    colorByPoint: true,
+                    data: [<?php foreach($arrayPieChart as $key => $value) : ?>
+                    {
+                        name: '<?php echo $value['project_type']; ?>',
+                        y: <?php echo $value['project_count']; ?>
                     },
-                    series: [{
-                        name: 'Brands',
-                        colorByPoint: true,
-                        data: [{
-                            name: 'Microsoft Internet Explorer',
-                            y: 56.33
-                        }, {
-                            name: 'Chrome',
-                            y: 24.03,
-                            sliced: true,
-                            selected: true
-                        }, {
-                            name: 'Firefox',
-                            y: 10.38
-                        }, {
-                            name: 'Safari',
-                            y: 4.77
-                        }, {
-                            name: 'Opera',
-                            y: 0.91
-                        }, {
-                            name: 'Proprietary or Undetectable',
-                            y: 0.2
-                        }]
-                    }]
-                });
+                    <?php endforeach;?>]
+                }]
+            });
+        });
+
+        $(function () {
+            $('#project_maintenance_chart').highcharts({
+                chart: {
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false,
+                    type: 'pie'
+                },
+                title: {
+                    text: 'Maitenance Working'
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                            style: {
+                                color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                            }
+                        }
+                    }
+                },
+                series: [{
+                	name: 'Project Percent',
+                    colorByPoint: true,
+                    data: [<?php foreach($arrayMaintenanceSum as $key => $value) :
+                        foreach($value[0] as $k => $v) :
+                    ?>
+                    {
+                    	name: '<?php echo $k ?>',
+                        y: <?php echo $v; ?>
+                    },
+                    <?php 
+                        endforeach;
+                    endforeach;?>]
+                }]
             });
         });
 		</script>
